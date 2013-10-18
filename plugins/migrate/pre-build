@@ -1,0 +1,4 @@
+#!/bin/bash
+#set -e;
+APP="$1";
+dokku rails:dbcreate $APP

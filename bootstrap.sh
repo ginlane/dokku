@@ -2,7 +2,7 @@
 
 set -e
 export DEBIAN_FRONTEND=noninteractive
-export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
+export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/ginlane/dokku.git"}
 
 if ! which apt-get &>/dev/null
 then
@@ -19,4 +19,4 @@ make install
 
 echo
 echo "Be sure to upload a public key for your user:"
-echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key progrium\""
+echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key git\""
