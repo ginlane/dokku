@@ -6,7 +6,7 @@ export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/ginlane/dokku.git"}
 
 if ! which apt-get &>/dev/null
 then
-	echo "This installation script requres apt-get. For manual installation instructions, consult https://github.com/progrium/dokku ."
+	echo "This installation script requres apt-get. For manual installation instructions, consult https://github.com/ginlane/dokku ."
 	exit 1
 fi
 
@@ -20,3 +20,4 @@ make install
 echo
 echo "Be sure to upload a public key for your user:"
 echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key git\""
+ 

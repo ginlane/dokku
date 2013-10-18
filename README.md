@@ -22,7 +22,7 @@ Set up a domain and a wildcard domain pointing to that host. Make sure `/home/gi
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
 like this from your local machine:
 
-    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key progrium"
+    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key git"
 
 That's it!
 
@@ -116,7 +116,7 @@ apply). Example:
 The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from
 your own clone of dokku using the DOKKU_REPO environment variable. Example:
 
-    $ wget https://raw.github.com/progrium/dokku/master/bootstrap.sh
+    $ wget https://raw.github.com/ginlane/dokku/master/bootstrap.sh
     $ chmod +x bootstrap.sh
     $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
 
@@ -126,7 +126,7 @@ Dokku ships with a pre-built version of version of the [buildstep] component by
 default. If you want to build your own version you can specify that with an env
 variable.
 
-    $ git clone https://github.com/progrium/dokku.git
+    $ git clone https://github.com/ginlane/dokku.git
     $ cd dokku
     $ sudo BUILD_STACK=true make install
 
