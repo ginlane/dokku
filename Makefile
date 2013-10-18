@@ -49,6 +49,7 @@ aufs:
 
 stack:
 	# @docker images | grep ginlane/buildstep ||  was prefixing the below command
+	docker rmi ginlane/buildstep
 	docker build -t ginlane/buildstep ${STACK_URL}
 
 count:
