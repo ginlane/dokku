@@ -43,6 +43,8 @@ docker: aufs
 	apt-get update
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
+	chmod 0755 /var/lib/docker
+	chmod 0777 /var/lib/docker/volumes
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
