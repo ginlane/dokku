@@ -119,8 +119,6 @@ case "$1" in
             DB_PASSWORD=$(cat "/home/git/.postgresql/pwd_$APP")
             ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
             IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
-            echo "butts"
-            exit 1
             # Write DATABASE_URL to app's ENV file
             URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
             cat "/home/git/$APP/ENV" | grep "$URL" || echo "export $URL" >> "/home/git/$APP/ENV"
