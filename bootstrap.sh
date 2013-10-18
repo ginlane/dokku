@@ -13,7 +13,9 @@ fi
 apt-get update
 apt-get install -y git make curl software-properties-common
 
-cd ~ && test -d dokku || git clone $DOKKU_REPO
+cd ~  
+rm -rf dokku
+git clone $DOKKU_REPO
 cd dokku && test $DOKKU_BRANCH && git checkout origin/$DOKKU_BRANCH || true
 make install
 
