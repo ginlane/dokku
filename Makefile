@@ -48,11 +48,7 @@ aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
 
 stack:
-ifdef BUILD_STACK
 	@docker images | grep ginlane/buildstep || docker build -t ginlane/buildstep ${STACK_URL}
-else
-	@docker images | grep ginlane/buildstep || curl ${PREBUILT_STACK_URL} | gunzip -cd | docker import - ginlane/buildstep
-endif
 
 count:
 	@echo "Core lines:"
