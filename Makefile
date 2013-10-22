@@ -1,4 +1,4 @@
-GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
+GITRECEIVE_URL ?= https://raw.github.com/ginlane/gitreceive/master/gitreceive
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/ginlane/buildstep

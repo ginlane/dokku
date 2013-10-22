@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-APP="$1"; PORT="$2"
+APP="$1"; PORT="$2"; BRANCH="$3";
 WILDCARD_SSL="$HOME/ssl"
 SSL="$HOME/$APP/ssl"
 
@@ -9,6 +9,8 @@ if [[ -f "$HOME/VHOST" ]]; then
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
     hostname="${APP/\//-}"
+  elif [[ "$BRANCH" != "master" ]]
+    hostname="$BRANCH.${APP/\//-}.$VHOST"
   else
     hostname="${APP/\//-}.$VHOST"
   fi

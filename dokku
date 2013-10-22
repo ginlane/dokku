@@ -4,7 +4,7 @@ set -o pipefail
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 case "$1" in
   receive)
-    APP="$2"; IMAGE="app/$APP"
+    APP="$2"; IMAGE="app/$APP"; BRANCH="$3";
     echo "-----> Building $APP ..."
     cat | dokku build $APP $IMAGE
     echo "-----> Build complete!"
@@ -63,7 +63,7 @@ case "$1" in
       id=$(docker run -d -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
       echo $id > "$HOME/$APP/CONTAINER"
     fi
-    pluginhook post-deploy $APP $port
+    pluginhook post-deploy $APP $port $BRANCH
     ;;
 
   cleanup)
