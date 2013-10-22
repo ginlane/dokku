@@ -43,21 +43,22 @@ case "$1" in
         fi
         echo $DB_PASSWORD > "/home/git/.postgresql/pwd_$APP"
         chown git: "/home/git/.postgresql/pwd_$APP"
+        # Fork DB image
+        ID=$(docker run -d kloadut/postgresql exit 0)
+        docker wait $ID > /dev/null
+        IMAGE=$(docker commit $ID)
+        docker tag $IMAGE $DB_IMAGE
+        # Launch container
+        ID=$(docker run -v $VOLUME -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD)
+        sleep 4
+        # Rename persistent volume
+        if [[ ! -d "/var/lib/docker/volumes/postgresql-$APP" ]]; then
+            VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+           mv $VOLUME_PATH "/var/lib/docker/volumes/postgresql-$APP"
+           sleep 1
+        fi
     fi
-    # Fork DB image
-    ID=$(docker run -d kloadut/postgresql exit 0)
-    docker wait $ID > /dev/null
-    IMAGE=$(docker commit $ID)
-    docker tag $IMAGE $DB_IMAGE
-    # Launch container
-    ID=$(docker run -v $VOLUME -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD)
-    sleep 4
-    # Rename persistent volume
-    if [[ ! -d "/var/lib/docker/volumes/postgresql-$APP" ]]; then
-        VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-	mv $VOLUME_PATH "/var/lib/docker/volumes/postgresql-$APP"
-	sleep 1
-    fi
+
     # Link to a potential existing app
     dokku postgresql:link $APP $APP
     echo
@@ -111,21 +112,21 @@ case "$1" in
         fi
         DB_IMAGE="postgresql/$3"
         # Check temporarily file
-    	if [[ ! -f "/home/git/.postgresql/pwd_$APP" ]]; then
-       	    echo 
-	        echo "Database is already linked"
-            exit 1
-        else
-            DB_PASSWORD=$(cat "/home/git/.postgresql/pwd_$APP")
-            ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
-            IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
-            # Write DATABASE_URL to app's ENV file
-            URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
-            cat "/home/git/$APP/ENV" | grep "$URL" || echo "export $URL" >> "/home/git/$APP/ENV"
-            echo
-       	    echo "-----> $APP linked to $DB_IMAGE database"
-            rm "/home/git/.postgresql/pwd_$APP"
-	fi
+      	if [[ ! -f "/home/git/.postgresql/pwd_$APP" ]]; then
+         	    echo 
+  	        echo "Database is already linked"
+              exit 1
+          else
+              DB_PASSWORD=$(cat "/home/git/.postgresql/pwd_$APP")
+              ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+              IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
+              # Write DATABASE_URL to app's ENV file
+              URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
+              cat "/home/git/$APP/ENV" | grep "$URL" || echo "export $URL" >> "/home/git/$APP/ENV"
+              echo
+         	    echo "-----> $APP linked to $DB_IMAGE database"
+              rm "/home/git/.postgresql/pwd_$APP"
+  	   fi
     fi
     ;;
 
