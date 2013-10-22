@@ -22,7 +22,7 @@ Set up a domain and a wildcard domain pointing to that host. Make sure `/home/gi
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
 like this from your local machine:
 
-    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key git"
+    $ cat ~/.ssh/id_rsa.pub | ssh root@ginlane.com "sudo gitreceive upload-key git"
 
 That's it!
 
@@ -33,7 +33,7 @@ Please check the documentation for your particular build pack as you may need to
 Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-sample). All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
-    $ git remote add progrium git@progriumapp.com:node-js-app
+    $ git remote add progrium git@ginlane.com:node-js-app
     $ git push progrium master
     Counting objects: 296, done.
     Delta compression using up to 4 threads.
@@ -47,7 +47,7 @@ Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-s
     ... blah blah blah ...
 
     -----> Application deployed:
-           http://node-js-app.progriumapp.com
+           http://node-js-app.ginlane.com
 
 You're done!
 
@@ -94,43 +94,6 @@ Next time the application is deployed, those variables would be exposed by `star
 ## SSL support
 
 Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy `.crt` and `.key` file into `/home/git/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of application will be needed to apply SSL configuration. Once it redeployed, application will be accessible by `https://` (redirection from `http://` is applied as well).
-
-## Advanced installation (for development)
-
-If you plan on developing dokku, the easiest way to install from your own repository is cloning
-the repository and calling the install script. Example:
-
-    $ git clone https://github.com/yourusername/dokku.git
-    $ cd dokku
-    $ sudo make install
-
-The `Makefile` allows source URLs to be overridden to include customizations from your own
-repositories. The DOCKER_URL, GITRECEIVE_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and STACK_URL
-environment variables may be set to override the defaults (see the `Makefile` for how these
-apply). Example:
-
-    $ sudo GITRECEIVE_URL=https://raw.github.com/yourusername/gitreceive/master/gitreceive make install
-
-## Advanced installation (bootstrap a server from your own repository)
-
-The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from
-your own clone of dokku using the DOKKU_REPO environment variable. Example:
-
-    $ wget https://raw.github.com/ginlane/dokku/master/bootstrap.sh
-    $ chmod +x bootstrap.sh
-    $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
-
-## Advanced installation (custom buildstep build)
-
-Dokku ships with a pre-built version of version of the [buildstep] component by
-default. If you want to build your own version you can specify that with an env
-variable.
-
-    $ git clone https://github.com/ginlane/dokku.git
-    $ cd dokku
-    $ sudo BUILD_STACK=true make install
-
-[buildstep]: https://github.com/progrium/buildstep
 
 ## Upgrading
 
