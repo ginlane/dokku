@@ -4,12 +4,12 @@ set -o pipefail
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 case "$1" in
   receive)
-    APP="$2"; IMAGE="app/$APP"; BRANCH="$3";
-    echo "-----> Building $APP ..."
+    APP="$2"; BRANCH="$3"; IMAGE="app/$APP.$BRANCH"; 
+    echo "-----> Building $APP from branch $BRANCH ..."
     cat | dokku build $APP $IMAGE
     echo "-----> Build complete!"
     echo "-----> Releasing $APP ..."
-    dokku release $APP $IMAGE
+    dokku release $APP $IMAGE $BRANCH
     echo "-----> Release complete!"
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE $BRANCH
@@ -18,7 +18,7 @@ case "$1" in
     dokku cleanup
     echo "-----> Cleanup complete!"
     echo "=====> Application deployed:"
-    echo "       $(dokku url $APP)"
+    echo "       $(dokku url $APP $BRANCH)"
     echo
     ;;
 
@@ -35,10 +35,10 @@ case "$1" in
     ;;
 
   release)
-    APP="$2"; IMAGE="$3"
+    APP="$2"; IMAGE="$3"; BRANCH="$4";
     pluginhook pre-release $APP $IMAGE
-    if [[ -f "$HOME/$APP/ENV" ]]; then
-      id=$(cat "$HOME/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+    if [[ -f "$HOME/$APP/$BRANCH.ENV" ]]; then
+      id=$(cat "$HOME/$APP/$BRANCH.ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi

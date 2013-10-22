@@ -1,9 +1,9 @@
 #!/bin/bash
-set -e; case "$1" in
-
-  url)
-    if [[ -f "/home/git/$2/VHOST" ]]; then
-      echo "http://$(< "/home/git/$2/VHOST")"
+set -e; 
+case "$1" in
+  url)  
+    if [[ -f "/home/git/$2/$3.VHOST" ]]; then
+      echo "http://$(< "/home/git/$2/$3.VHOST")"
     else
       cat
     fi

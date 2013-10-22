@@ -9,7 +9,7 @@ if [[ -f "$HOME/VHOST" ]]; then
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
     hostname="${APP/\//-}"
-  elif [[ "$BRANCH" != "master" ]]
+  elif [[ "$BRANCH" != "master" ]]; then
     hostname="$BRANCH.${APP/\//-}.$VHOST"
   else
     hostname="${APP/\//-}.$VHOST"
@@ -24,7 +24,7 @@ if [[ -f "$HOME/VHOST" ]]; then
   # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
   cat<<EOF > $HOME/$APP/$BRANCH.nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
+upstream $BRANCH.$APP { server 127.0.0.1:$PORT; }
 server {
   listen      80;
   server_name $hostname;
@@ -43,7 +43,7 @@ server {
   ssl_prefer_server_ciphers on;
 
   location    / {
-    proxy_pass  http://$APP;
+    proxy_pass  http://$BRANCH.$APP;
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -58,12 +58,12 @@ EOF
 else
 # default nginx.conf
   cat<<EOF > $HOME/$APP/$BRANCH.nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
+upstream $BRANCH.$APP { server 127.0.0.1:$PORT; }
 server {
   listen      80;
   server_name $hostname;
   location    / {
-    proxy_pass  http://$APP;
+    proxy_pass  http://$BRANCH.$APP;
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";

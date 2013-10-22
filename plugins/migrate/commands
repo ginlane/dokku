@@ -7,7 +7,7 @@ if [[ $1 == rails:* ]]; then
         echo "You must specify an app name"
         exit 1
     else
-	APP="$2"; IMAGE="app/$APP"
+	APP="$2"; IMAGE="$3"
     	if [[ ! -d "/home/git/$APP" ]]; then
             echo "App $APP does not exist"
             exit 1
@@ -18,10 +18,6 @@ fi
 case "$1" in
     rails:migrate)
 	   docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
-	   sleep 1
-    ;;
-    rails:dbcreate)
-	   dokku postgresql:create $APP
 	   sleep 1
     ;;
     help)
