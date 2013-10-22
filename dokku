@@ -12,7 +12,7 @@ case "$1" in
     dokku release $APP $IMAGE
     echo "-----> Release complete!"
     echo "-----> Deploying $APP ..."
-    dokku deploy $APP $IMAGE
+    dokku deploy $APP $IMAGE $BRANCH
     echo "-----> Deploy complete!"
     echo "-----> Cleaning up ..."
     dokku cleanup
@@ -46,7 +46,7 @@ case "$1" in
     ;;
 
   deploy)
-    APP="$2"; IMAGE="$3"
+    APP="$2"; IMAGE="$3"; BRANCH="$4";
     pluginhook pre-deploy $APP $IMAGE
     if [[ ! -f "$HOME/$APP/PORT" ]]; then
       # First deploy
