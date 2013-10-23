@@ -21,6 +21,29 @@ EOF
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 echo "include /home/git/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
+# set up docker API endpoint
+rm /var/run/docker.sock
+docker -d -H=127.0.0.1:4243
+chmod 0777 /var/run/docker.sock
+mkdir /home/git/docker
+cat<<EOF > /home/git/docker/nginx.conf
+upstream docker { server 127.0.0.1:4243; }
+server {
+  listen      80;
+  server_name docker.ginlane.com;
+  location    / {
+    proxy_pass  http://docker;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Request-Start $msec;
+  }
+}
+EOF
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 [[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
