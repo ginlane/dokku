@@ -23,7 +23,6 @@ case "$1" in
     help)
         cat && cat<<EOF
     rails:migrate <app>     Migrate rails DB for the app
-    rails:dbcreate <app>     Create rails DB for the app
 EOF
     ;;
 esac
