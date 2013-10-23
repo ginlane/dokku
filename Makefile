@@ -42,8 +42,11 @@ docker: aufs
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 	apt-get install -y lxc-docker 
-	docker -d &
+	(docker -d &) &
+	echo "Stopping running docker containers"
 	sleep 2 # give docker a moment i guess
+	docker stop `docker ps -a -q`
+	docker rmi `docker images -q`
 	chmod 0777 /var/lib/docker/volumes
 	chmod 0777 /var/run/docker.sock
 
