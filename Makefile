@@ -42,9 +42,8 @@ docker: aufs
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 	apt-get install -y lxc-docker 
+	docker -d &
 	sleep 2 # give docker a moment i guess
-	(docker -d -H=127.0.0.1:4243 &) &
-	chmod 0755 /var/lib/docker
 	chmod 0777 /var/lib/docker/volumes
 	chmod 0777 /var/run/docker.sock
 

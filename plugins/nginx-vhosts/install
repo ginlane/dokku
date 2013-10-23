@@ -27,7 +27,7 @@ docker -d -H=127.0.0.1:4243
 chmod 0777 /var/run/docker.sock
 mkdir /home/git/docker
 cat<<EOF > /home/git/docker/nginx.conf
-upstream docker { server 127.0.0.1:4243; }
+upstream docker { server unix:///var/run/docker.sock; }
 server {
   listen      80;
   server_name docker.ginlane.com;
