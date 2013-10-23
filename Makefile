@@ -45,7 +45,6 @@ docker: aufs
 	sleep 2 # give docker a moment i guess
 	chmod 0755 /var/lib/docker
 	chmod 0777 /var/lib/docker/volumes
-	chmod 0777 /var/run/docker.sock
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
