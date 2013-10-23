@@ -43,7 +43,7 @@ docker: aufs
 	apt-get update
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
-	docker stop `docker stop ps -a -q`
+	docker stop `docker ps -a -q`
 	docker rmi `docker images -q`
 	chmod 0777 /var/lib/docker/volumes
 	chmod 0777 /var/run/docker.sock
