@@ -19,10 +19,16 @@ set -e; case "$1" in
     docker run -i -t $IMAGE /exec "$@"
     ;;
 
+  docker)
+    shift 1
+    docker "$@"
+    ;;
+
   help)
     cat && cat<<EOF
     logs <app>      Show the last logs for an application
     run <app> <cmd> Run a command in the environment of an application
+    docker <arg1> <arg2> <...> Run any docker command
 EOF
     ;;
 
