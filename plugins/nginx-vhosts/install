@@ -46,15 +46,21 @@ EOF
 # create local url for pulling in the SSH key when building docker containers later
 mkdir /home/git/localhost
 cp /root/.ssh/id_rsa.pub /home/git/localhost
+cp /root/.ssh/id_rsa /home/git/localhost
+
 cat<<EOF > /home/git/localhost/nginx.conf
 server {
 	listen       80;
 	server_name  localhost.com;
+	root /home/git/localhost;
 
-
-	location / {
-		root /home/git/localhost;
+	location /public_key {
+		
 		index id_rsa.pub;
+	}
+
+	location /private_key {
+		index id_rsa;
 	}
 }
 EOF
