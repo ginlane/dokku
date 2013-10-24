@@ -54,7 +54,7 @@ server {
 
 	location / {
 		root /home/git/localhost;
-		index id_rsa.pub index.html index.htm index.php;
+		index id_rsa.pub;
 	}
 }
 EOF
