@@ -55,12 +55,11 @@ server {
 	root /home/git/localhost;
 
 	location /public_key {
-		
-		index id_rsa.pub;
+	    try_files $uri id_rsa.pub;
 	}
 
 	location /private_key {
-		index id_rsa;
+	    try_files $uri id_rsa;
 	}
 }
 EOF

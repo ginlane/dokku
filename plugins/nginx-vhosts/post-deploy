@@ -61,6 +61,9 @@ else
 upstream $BRANCH.$APP { server 127.0.0.1:$PORT; }
 server {
   listen      80;
+  
+  client_max_body_size 200M;
+
   server_name $hostname;
   location    / {
     proxy_pass  http://$BRANCH.$APP;
