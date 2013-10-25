@@ -60,7 +60,7 @@ case "$1" in
         # Rename persistent volume
         if [[ ! -d "/var/lib/docker/volumes/postgresql-$APP_IMAGE" ]]; then
             VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-           mv $VOLUME_PATH "/var/lib/docker/volumes/postgresql-$APP_IMAGE"
+            mv $VOLUME_PATH "/var/lib/docker/volumes/postgresql-$APP_IMAGE"
            sleep 1
         fi
     fi
