@@ -12,6 +12,7 @@ if [[ $1 == rails:* ]]; then
             exit 1
         fi
         buildpack=$(docker run $IMAGE cat /buildpack_name)
+        echo $buildpack
         if [[ $buildpack == "Ruby/Rails" ]]; then
             echo "butts"
             case "$1" in

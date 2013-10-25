@@ -27,7 +27,10 @@ case "$1" in
     id=$(cat | docker run -i -a stdin ginlane/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+    # detect the buildpack first so we can fork logic from here via dokku plugins
+    id=$(docker run -d $IMAGE /build/detector)
     pluginhook pre-build $APP $IMAGE
+    # now run the actual build step
     id=$(docker run -d $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
