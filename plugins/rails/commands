@@ -38,10 +38,10 @@ fi
 
 if [[ $1 == help ]]; then
 	cat && cat<<EOF
-	rails:db:create <app> <image>     Create rails DB for the app
-	rails:db:migrate <app> <image>     Migrate rails DB for the app
-	rails:db:seed <app> <image>     Seed rails DB for the app
-	rails:mount:public <app> <image>     Mount rails public directory to host OS
+rails:db:create <app> <image>     Create rails DB for the app
+rails:db:migrate <app> <image>     Migrate rails DB for the app
+rails:db:seed <app> <image>     Seed rails DB for the app
+rails:mount:public <app> <image>     Mount rails public directory to host OS
 EOF
 fi
 
