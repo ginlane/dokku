@@ -1,5 +1,5 @@
 #!/bin/bash
 #set -e;
 APP="$1"; IMAGE="$2";
-dokku rails:db:migrate $APP $IMAGE
 dokku rails:mount:public $APP $IMAGE
+dokku rails:db:migrate $APP $IMAGE
