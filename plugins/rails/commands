@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Check if name is specified and exists
+if [[ $1 == rails:* ]]; then
+    if [[ -z $2 ]]; then
+        echo "You must specify an app name"
+        exit 1
+    else
+        APP="$2"; IMAGE="$3"
+        if [[ ! -d "/home/git/$APP" ]]; then
+        echo "App $APP does not exist"
+        exit 1
+        fi
+    fi
+fi
+
+buildpack=$(docker run $IMAGE cat /buildpack_name)
+
+if [[ $buildpack == 'Ruby/Rails' ]]; then
+    case "$1" in
+        rails:db:create)
+            if [[ docker run $IMAGE cat /app/Gemfile | grep -q -e "'pg''" -e '"pg"' ]]; then
+                dokku postgresql:create $APP $IMAGE
+            fi
+        ;;
+        rails:db:migrate)
+            docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
+            sleep 1
+        ;;
+        rails:mount:public)
+            
+        ;;
+        help)
+            cat && cat<<EOF
+    rails:db:create <app> <image>     Create rails DB for the app
+    rails:db:migrate <app> <image>     Migrate rails DB for the app
+    rails:mount:public <app> <image>     Mount rails public directory to host OS
+EOF
+        ;;
+    esac
+fi
+cat

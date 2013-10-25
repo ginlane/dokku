@@ -1,4 +1,4 @@
 #!/bin/bash
 #set -e;
 APP="$1"; IMAGE="$2";
-dokku rails:migrate $APP $IMAGE
+dokku rails:db:create $APP $IMAGE

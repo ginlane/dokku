@@ -1,4 +1,0 @@
-#!/bin/bash
-#set -e;
-APP="$1"; IMAGE="$2";
-dokku postgresql:create $APP $IMAGE
