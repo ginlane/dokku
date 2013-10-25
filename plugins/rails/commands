@@ -2,46 +2,57 @@
 
 # Check if name is specified and exists
 if [[ $1 == rails:* ]]; then
-	if [[ -z $2 ]]; then
-		echo "You must specify an app name"
-		exit 1
-	else
-		APP="$2"; IMAGE="$3"; APP_IMAGE=`echo $IMAGE | cut -d '/' -f 2`;  # disregard app/ part of $IMAGE
-		if [[ ! -d "/home/git/$APP" ]]; then
-			echo "App $APP does not exist"
-			exit 1
-		fi
-		buildpack=$(docker run $IMAGE cat /buildpack_name)
-		if [[ $buildpack == "Ruby/Rails" ]]; then
-			case "$1" in
-				rails:db:create)
-					if docker run $IMAGE cat /app/Gemfile | grep -q -e "'pg'" -e '"pg"'; then
-						dokku postgresql:create $APP $IMAGE
-					fi
-				;;
-				rails:db:migrate)
-					docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
-					sleep 1
-				;;
-				rails:db:seed)
-					docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:seed"
-					sleep 1
-				;;
-				rails:mount:public)
-					VOLUME="/var/lib/docker/volumes/public-$IMAGE:/app/public"
-					docker run -d -v $VOLUME $APP_IMAGE
-				;;
-			esac
-		fi
-	fi
+  if [[ -z $2 ]]; then
+    echo "You must specify an app name"
+    exit 1
+  else
+    APP="$2"; IMAGE="$3"; APP_IMAGE=`echo $IMAGE | cut -d '/' -f 2`; BRANCH="$4";  # disregard app/ part of $IMAGE
+    echo $IMAGE
+    echo $APP_IMAGE
+    if [[ ! -d "/home/git/$APP" ]]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
+    buildpack=$(docker run $IMAGE cat /buildpack_name)
+    if [[ $buildpack == "Ruby/Rails" ]]; then
+      case "$1" in
+        rails:db:create)
+          if ! docker run $IMAGE cat /app/Gemfile | grep -q -e "'pg'" -e '"pg"'; then
+            # add 'pg' gem to Gemfile
+            id=$(docker run -d $IMAGE echo gem \'pg\' >> /app/Gemfile)
+            test $(docker wait $id) -eq 0
+            docker commit $id $IMAGE > /dev/null
+          fi
+          # always use pgsql on rails apps
+          dokku postgresql:create $APP $IMAGE
+        ;;
+        rails:db:migrate)
+          docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
+          sleep 1
+        ;;
+        rails:db:seed)
+          docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:seed"
+          sleep 1
+        ;;
+        rails:mount:public)
+          VOLUME="/var/lib/docker/volumes/public-$APP_IMAGE:/app/public"
+          oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
+          docker kill $oldid > /dev/null
+          port=$(< "$HOME/$APP/$BRANCH.PORT")
+          id=$(docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+          echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
+        ;;
+      esac
+    fi
+  fi
 fi
 
 if [[ $1 == help ]]; then
-	cat && cat<<EOF
-rails:db:create <app> <image>     Create rails DB for the app
-rails:db:migrate <app> <image>     Migrate rails DB for the app
-rails:db:seed <app> <image>     Seed rails DB for the app
-rails:mount:public <app> <image>     Mount rails public directory to host OS
+  cat && cat<<EOF
+    rails:db:create <app> <image>     Create rails DB for the app
+    rails:db:migrate <app> <image>     Migrate rails DB for the app
+    rails:db:seed <app> <image>     Seed rails DB for the app
+    rails:mount:public <app> <image>     Mount rails public directory to host OS
 EOF
 fi
 

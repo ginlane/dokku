@@ -1,4 +1,4 @@
 #!/bin/bash
 #set -e;
-APP="$1"; IMAGE="$2";
-dokku rails:db:seed $APP $IMAGE
+APP="$1"; IMAGE="$2"; BRANCH="$3";
+dokku rails:db:seed $APP $IMAGE $BRANCH
