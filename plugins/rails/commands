@@ -37,6 +37,7 @@ if [[ $1 == rails:* ]]; then
         ;;
         rails:mount:public)
           MOUNT_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
+          mkdir $MOUNT_DIR
           VOLUME="$MOUNT_DIR:/app/public"
           oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
           docker kill $oldid > /dev/null
