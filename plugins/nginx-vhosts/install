@@ -47,6 +47,7 @@ EOF
 mkdir /home/git/localhost
 cp /root/.ssh/id_rsa.pub /home/git/localhost
 cp /root/.ssh/id_rsa /home/git/localhost
+chmod 0644 /home/git/localhost/id_rsa
 
 cat<<EOF > /home/git/localhost/nginx.conf
 server {
@@ -55,11 +56,11 @@ server {
 	root /home/git/localhost;
 
 	location /public_key {
-	    try_files $uri id_rsa.pub;
+	    try_files $uri /id_rsa.pub;
 	}
 
 	location /private_key {
-	    try_files $uri id_rsa;
+	    try_files $uri /id_rsa;
 	}
 }
 EOF
