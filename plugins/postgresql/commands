@@ -8,17 +8,17 @@ if [[ $1 == postgresql:* ]]; then
         exit 1
     else
         APP="$2";
-  if [[ -z $3 ]]; then
-            APP=`echo $2 | cut -d '.' -f 1`;
-            APP_IMAGE="$2"
+        if [[ -z $3 ]]; then
+          APP=`echo $2 | cut -d '.' -f 1`;
+          APP_IMAGE="$2"
         else
-      APP_IMAGE=`echo $3 | cut -d '/' -f 2`;  # disregard app/ part of $IMAGE
-  fi
-  # Check if app exists with the same name
+          APP_IMAGE=`echo $3 | cut -d '/' -f 2`;  # disregard app/ part of $IMAGE
+        fi
+        # Check if app exists with the same name
         if [[ -d "/home/git/$APP" ]]; then
-            APP_EXISTS=true
+          APP_EXISTS=true
         else
-            APP_EXISTS=false
+          APP_EXISTS=false
         fi
     fi
 fi
@@ -116,24 +116,23 @@ case "$1" in
             exit 1
         fi
         DB_IMAGE="postgresql/$APP_IMAGE"
-
-        # Check temporarily file
+        # Check temporary file
         if [[ ! -f "/home/git/.postgresql/pwd_$APP_IMAGE" ]]; then
               echo
               echo "Database is already linked"
-          #    echo
-        # exit 1
-  else
-              DB_PASSWORD=$(cat "/home/git/.postgresql/pwd_$APP_IMAGE")
-              ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
-              IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
-              # Write DATABASE_URL to app's ENV file
-              URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
-              BRANCH=`echo $APP_IMAGE | cut -d '.' -f 2`;
-              cat "/home/git/$APP/$BRANCH.ENV" | grep "$URL" || echo "export $URL" >> "/home/git/$APP/$BRANCH.ENV"
-              echo
-              echo "-----> $APP_IMAGE linked to $DB_IMAGE database"
-              rm "/home/git/.postgresql/pwd_$APP_IMAGE"
+              # echo
+              # exit 1
+        else
+          DB_PASSWORD=$(cat "/home/git/.postgresql/pwd_$APP_IMAGE")
+          ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+          IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
+          # Write DATABASE_URL to app's ENV file
+          URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
+          BRANCH=`echo $APP_IMAGE | cut -d '.' -f 2`;
+          cat "/home/git/$APP/$BRANCH.ENV" | grep "$URL" || echo "export $URL" >> "/home/git/$APP/$BRANCH.ENV"
+          echo
+          echo "-----> $APP_IMAGE linked to $DB_IMAGE database"
+          rm "/home/git/.postgresql/pwd_$APP_IMAGE"
        fi
     fi
     ;;
