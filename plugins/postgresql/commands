@@ -34,10 +34,11 @@ case "$1" in
         exit 1
     fi
     # Check if an existing DB volume exists
-    if [[ -d "/var/lib/docker/volumes/postgresql-$APP_IMAGE" ]]; then
-        VOLUME="/var/lib/docker/volumes/postgresql-$APP_IMAGE/layer:/opt/postgresql"
+    DB_VOLUME_PATH="/var/lib/docker/volumes/postgresql-$APP_IMAGE"
+    if [[ -d  $DB_VOLUME_PATH ]]; then
+        VOLUME="$DB_VOLUME_PATH/layer:/opt/postgresql"
         echo
-        echo "-----> Reusing postgresql/$APP_IMAGE database"
+        echo "-----> Reusing postgresql/$APP_IMAGE database at volume $VOLUME"
     else
         VOLUME="/opt/postgresql"
         # Generate a random password for DB user
@@ -58,11 +59,9 @@ case "$1" in
         ID=$(docker run -v $VOLUME -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD)
         sleep 4
         # Rename persistent volume
-        if [[ ! -d "/var/lib/docker/volumes/postgresql-$APP_IMAGE" ]]; then
-            VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-            mv $VOLUME_PATH "/var/lib/docker/volumes/postgresql-$APP_IMAGE"
-           sleep 1
-        fi
+        VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+        mv $VOLUME_PATH $DB_VOLUME_PATH
+        sleep 1
     fi
     # Link to a potential existing app
     dokku postgresql:link $APP $APP_IMAGE

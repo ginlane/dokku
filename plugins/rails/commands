@@ -37,12 +37,13 @@ if [[ $1 == rails:* ]]; then
         ;;
         rails:mount:public)
           MOUNT_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
-          
+
           if [[ -d $MOUNT_DIR ]]; then
             VOLUME="$MOUNT_DIR/layer:/app/public"
           else
             VOLUME="/app/public"
           fi
+          echo $VOLUME
 
           oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
           docker kill $oldid > /dev/null
@@ -51,6 +52,7 @@ if [[ $1 == rails:* ]]; then
           
           if [[ ! -d $MOUNT_DIR ]]; then
               VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+              echo $VOLUME_PATH
               mv $VOLUME_PATH "/var/lib/docker/volumes/public-$APP_IMAGE"
               sleep 1
           fi
