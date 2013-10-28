@@ -52,7 +52,9 @@ if [[ $1 == rails:* ]]; then
               # mv $VOLUME_PATH $MOUNT_DIR
               # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
               sleep 1
+              echo "butts"
           fi
+          echo "butts2"
         ;;
       esac
     fi
