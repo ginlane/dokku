@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # latest stable NGINX 1.4.x with websocket support
-echo "0"
-exit 33
+
 add-apt-repository -y ppa:nginx/stable
 apt-get update
 apt-get install -y nginx dnsutils
-echo "0.5"
+
+
 if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   touch /etc/sudoers.tmp
   cp /etc/sudoers /tmp/sudoers.new
@@ -15,7 +15,8 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   EDITOR="cp /tmp/sudoers.new" visudo
   rm /tmp/sudoers.new
 fi
-echo "1"
+
+
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 echo "include /home/git/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
@@ -122,5 +123,5 @@ echo "127.0.0.1       localhost.com" >> /etc/hosts
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 [[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
-echo "btts"
+
 /etc/init.d/nginx start
