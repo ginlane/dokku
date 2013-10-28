@@ -9,7 +9,8 @@ all:
 
 install: dependencies copyfiles plugins
 
-dokkuonly: copyfiles
+dokkuonly: copyfiles pluginhook
+	dokku plugins-install
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
