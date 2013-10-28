@@ -24,6 +24,7 @@ savesettings:
 copyfiles:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
+	- rm -rf /var/lib/dokku/plugins
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
 
@@ -55,6 +56,7 @@ docker: aufs
 	apt-get update
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
+	rm -rf /var/lib/docker/volumes/*
 	docker stop `docker ps -a -q`
 	docker rmi `docker images -q`
 	chmod 0777 /var/lib/docker/volumes
