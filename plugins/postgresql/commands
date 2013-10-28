@@ -62,6 +62,8 @@ case "$1" in
         VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
         mv $VOLUME_PATH $DB_VOLUME_PATH
         sleep 1
+        echo
+        echo "-----> PostgreSQL container created: $DB_IMAGE"
     fi
     # Link to a potential existing app
     dokku postgresql:link $APP $APP_IMAGE

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 APP="$1"; IMAGE="$2"; BRANCH="$3"; PORT="$4";
+echo $APP
+echo $IMAGE
+echo $BRANCH
+echo $PORT
 WILDCARD_SSL="$HOME/ssl"
 SSL="$HOME/$APP/ssl"
 
@@ -24,7 +28,7 @@ if [[ -f "$HOME/VHOST" ]]; then
   # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
   cat<<EOF > $HOME/$APP/$BRANCH.nginx.conf
-upstream $BRANCH.$APP { server 127.0.0.1:$PORT; }
+upstream $APP.$BRANCH { server 127.0.0.1:$PORT; }
 server {
   listen      80;
   server_name $hostname;
@@ -34,6 +38,7 @@ server {
 server {
   listen      443;
   server_name $hostname;
+  client_max_body_size 200M;
 
   ssl on;
   ssl_certificate     $SSL_INUSE/server.crt;
@@ -43,7 +48,7 @@ server {
   ssl_prefer_server_ciphers on;
 
   location    / {
-    proxy_pass  http://$BRANCH.$APP;
+    proxy_pass  http://$APP.$BRANCH;
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -58,15 +63,14 @@ EOF
 else
 # default nginx.conf
   cat<<EOF > $HOME/$APP/$BRANCH.nginx.conf
-upstream $BRANCH.$APP { server 127.0.0.1:$PORT; }
+upstream $APP.$BRANCH { server 127.0.0.1:$PORT; }
 server {
   listen      80;
-  
   client_max_body_size 200M;
-
   server_name $hostname;
+
   location    / {
-    proxy_pass  http://$BRANCH.$APP;
+    proxy_pass  http://$APP.$BRANCH;
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
