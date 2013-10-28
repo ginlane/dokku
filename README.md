@@ -11,7 +11,13 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing
 
+Everything (including docker, gitreceive, sshcommand, pluginhook, & buildstep):
+
     $ wget -qO- https://raw.github.com/ginlane/dokku/master/bootstrap.sh | sudo bash
+
+Dokku + plugins:
+
+    $ wget -qO- https://raw.github.com/ginlane/dokku/master/dokku.sh | sudo bash
 
 This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
 

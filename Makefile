@@ -9,6 +9,8 @@ all:
 
 install: dependencies copyfiles plugins
 
+dokkuonly: copyfiles plugins
+
 copyfiles:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
