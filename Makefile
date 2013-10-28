@@ -14,12 +14,12 @@ dokkuonly: savesettings copyfiles
 	# dokku plugins-install
 
 savesettings:
-	mv /home/git/.ssh /home/.git.ssh
-	mv /home/git/ssl /home/.git.ssl
+	- mv /home/git/.ssh /home/.git.ssh
+	- mv /home/git/ssl /home/.git.ssl
 	rm -rf /home/git
 	mkdir /home/git
-	mv /home/.git.ssh /home/git/.ssh
-	mv /home/.git.ssl /home/git/ssl
+	- mv /home/.git.ssh /home/git/.ssh
+	- mv /home/.git.ssl /home/git/ssl
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
