@@ -48,7 +48,7 @@ if [[ $1 == rails:* ]]; then
           docker kill $oldid > /dev/null
           port=$(< "$HOME/$APP/$BRANCH.PORT")
           id=$(docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          
+          sleep 4
           if [[ ! -d $MOUNT_DIR ]]; then
               VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
               echo $VOLUME_PATH
