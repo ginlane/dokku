@@ -28,7 +28,7 @@ case "$1" in
   postgresql:create)
     DB_IMAGE=postgresql/$APP_IMAGE
     # Check if DB container is installed
-    IMAGE=$(docker images | grep "kloadut/postgresql " |  awk '{print $3}')
+    IMAGE=$(docker images | grep "dokku/postgresql " |  awk '{print $3}')
     if [[ -z $IMAGE ]]; then
         echo "PostgreSQL image not found... Did you run 'dokku plugins-install' ?"
         exit 1

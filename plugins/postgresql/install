@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Build docker image
-- docker rmi kloadut/postgresql
-docker build -q=true -t kloadut/postgresql github.com/Kloadut/dokku-pg-dockerfiles
+- docker rmi dokku/postgresql
+docker build -q=true -t dokku/postgresql github.com/Kloadut/dokku-pg-dockerfiles

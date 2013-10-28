@@ -9,8 +9,7 @@ all:
 
 install: savesettings dependencies copyfiles plugins
 
-dokkuonly: savesettings copyfiles 
-	# pluginhook
+dokkuonly: savesettings copyfiles pluginhook
 	# dokku plugins-install
 
 savesettings:
