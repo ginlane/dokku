@@ -7,7 +7,7 @@ PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep
 all:
 	# Type "make install" to install.
 
-install: savesettings dependencies copyfiles plugins
+install: savesettings dependencies 
 
 dokkuonly: savesettings copyfiles pluginhook
 	# dokku plugins-install
@@ -30,7 +30,7 @@ copyfiles:
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: gitreceive sshcommand pluginhook docker stack
+dependencies: gitreceive sshcommand pluginhook copyfiles plugins docker stack
 
 gitreceive:
 	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}
