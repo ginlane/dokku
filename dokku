@@ -62,7 +62,6 @@ case "$1" in
       echo $port > "$HOME/$APP/$BRANCH.PORT"
       echo "http://$(< "$HOME/HOSTNAME"):$port" > "$HOME/$APP/$BRANCH.URL"
       pluginhook post-first-deploy $APP $IMAGE $BRANCH
-      
     else
       # Regular deploy
       oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")

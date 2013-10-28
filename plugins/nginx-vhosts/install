@@ -19,6 +19,7 @@ echo "include /home/git/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
 # set up docker API endpoint
 chmod 0777 /var/run/docker.sock
+rm -rf /home/git/docker
 mkdir /home/git/docker
 cat<<EOF > /home/git/docker/nginx.conf
 upstream docker { server unix:///var/run/docker.sock; }
@@ -40,6 +41,7 @@ server {
 EOF
 
 # create local url for pulling in the SSH key when building docker containers later
+rm -rf /home/git/localhost
 mkdir /home/git/localhost
 cp /root/.ssh/id_rsa.pub /home/git/localhost
 cp /root/.ssh/id_rsa /home/git/localhost
@@ -117,5 +119,5 @@ echo "127.0.0.1       localhost.com" >> /etc/hosts
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 [[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
-
+echo "btts"
 /etc/init.d/nginx start
