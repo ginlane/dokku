@@ -30,7 +30,7 @@ copyfiles:
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: gitreceive sshcommand pluginhook copyfiles plugins docker stack
+dependencies: gitreceive sshcommand docker pluginhook copyfiles plugins stack
 
 gitreceive:
 	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}
