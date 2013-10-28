@@ -47,6 +47,8 @@ if [[ $1 == rails:* ]]; then
           oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
           docker kill $oldid > /dev/null
           port=$(< "$HOME/$APP/$BRANCH.PORT")
+          testing='docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web"'
+          echo $testing
           id=$(docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
           test $(docker wait $id) -eq 0
           if [[ ! -d $MOUNT_DIR ]]; then
