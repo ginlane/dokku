@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 APP="$1"; IMAGE="$2"; BRANCH="$3"; PORT="$4";
-echo $APP
-echo $IMAGE
-echo $BRANCH
-echo $PORT
 WILDCARD_SSL="$HOME/ssl"
 SSL="$HOME/$APP/ssl"
 
@@ -87,7 +83,6 @@ EOF
 
   echo "http://$hostname" > "$HOME/$APP/$BRANCH.URL"
   fi
-  echo "butttts"
   sudo /etc/init.d/nginx reload
   echo "wtf"
 fi
