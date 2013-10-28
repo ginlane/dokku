@@ -37,32 +37,22 @@ if [[ $1 == rails:* ]]; then
         ;;
         rails:mount:public)
           MOUNT_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
-
-          if [[ -d $MOUNT_DIR ]]; then
-            RENAMED_VOLUME="$MOUNT_DIR/layer:/app/public"
-          else
-            VOLUME="/app/public"
-          fi
-
-          echo $VOLUME
-
+          VOLUME="/app/public"
+          RENAMED_VOLUME="$MOUNT_DIR/layer:/app/public"
           oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
           docker kill $oldid > /dev/null
           port=$(< "$HOME/$APP/$BRANCH.PORT")
-          
-          testing='docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web"'
-          
           id=$(docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+          echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
           # test $(docker wait $id) -eq 0
           sleep 4
           if [[ ! -d $MOUNT_DIR ]]; then
-              docker kill $id > /dev/null
-              VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-              mv $VOLUME_PATH $MOUNT_DIR
-              id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+              # docker kill $id > /dev/null
+              # VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+              # mv $VOLUME_PATH $MOUNT_DIR
+              # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
               sleep 1
           fi
-          echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
         ;;
       esac
     fi
