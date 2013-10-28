@@ -13,7 +13,7 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   EDITOR="cp /tmp/sudoers.new" visudo
   rm /tmp/sudoers.new
 fi
-
+echo "1"
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 echo "include /home/git/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
@@ -40,6 +40,7 @@ server {
 }
 EOF
 
+echo "2"
 # create local url for pulling in the SSH key when building docker containers later
 rm -rf /home/git/localhost
 mkdir /home/git/localhost
