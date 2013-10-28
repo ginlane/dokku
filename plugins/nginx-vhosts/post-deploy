@@ -87,5 +87,7 @@ EOF
 
   echo "http://$hostname" > "$HOME/$APP/$BRANCH.URL"
   fi
+  echo "butttts"
   sudo /etc/init.d/nginx reload
+  echo "wtf"
 fi
