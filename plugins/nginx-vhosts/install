@@ -43,7 +43,6 @@ server {
 }
 EOF
 
-echo "2"
 # create local url for pulling in the SSH key when building docker containers later
 rm -rf /home/git/localhost
 mkdir /home/git/localhost
