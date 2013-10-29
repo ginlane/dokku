@@ -28,7 +28,7 @@ copyfiles:
 	cp -r plugins/* /var/lib/dokku/plugins
 
 plugins: pluginhook docker
-	#dokku plugins-install
+	dokku plugins-install
 
 dependencies: gitreceive sshcommand docker pluginhook copyfiles plugins stack
 
