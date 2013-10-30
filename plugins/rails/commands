@@ -44,6 +44,7 @@ if [[ $1 == rails:* ]]; then
           port=$(< "$HOME/$APP/$BRANCH.PORT")
           id=$(docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
           echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
+          echo $id
           # test $(docker wait $id) -eq 0
           sleep 4
           if [[ ! -d $MOUNT_DIR ]]; then
@@ -52,9 +53,8 @@ if [[ $1 == rails:* ]]; then
               # mv $VOLUME_PATH $MOUNT_DIR
               # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
               sleep 1
-              echo "butts"
           fi
-          echo "butts2"
+          echo "butts"
         ;;
       esac
     fi

@@ -67,6 +67,7 @@ aufs:
 stack:
 	# @docker images | grep ginlane/buildstep ||  was prefixing the below command
 	docker build -t ginlane/buildstep ${STACK_URL}
+	# docker build -t ginlane/buildstep github.com/ginlane/buildstep
 
 count:
 	@echo "Core lines:"

@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e; case "$1" in
+set -e; 
+case "$1" in
   delete)
     if [[ -z $2 ]]; then
         echo "Please specify an app to delete"
@@ -44,14 +45,14 @@ set -e; case "$1" in
     docker "$@"
     ;;
   url)
-    APP="$2";
+    APP="$2"; BRANCH="$3";
     if [[ ! -d "/home/git/$APP" ]]; then
         echo "App $APP does not exist"
         exit 1
     fi
 
-    if [[ -f "/home/git/$APP/$3.VHOST" ]]; then
-      echo $(< "/home/git/$APP/$3.VHOST")
+    if [[ -f "/home/git/$APP/$BRANCH.URL" ]]; then
+      echo $(< "/home/git/$APP/$BRANCH.URL")
     fi
     ;;
 
