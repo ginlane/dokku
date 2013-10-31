@@ -24,7 +24,6 @@ if [[ $1 == postgresql:* ]]; then
 fi
 
 case "$1" in
-
   postgresql:create)
     DB_IMAGE=postgresql/$APP_IMAGE
     # Check if DB container is installed
