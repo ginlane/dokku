@@ -40,7 +40,6 @@ sshcommand:
 pluginhook:
 	wget -qO /tmp/pluginhook_0.1.0_amd64.deb ${PLUGINHOOK_URL}
 	dpkg -i /tmp/pluginhook_0.1.0_amd64.deb
-	copyplugins
 
 docker: aufs
 	egrep -i "^docker" /etc/group || groupadd docker
