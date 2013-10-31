@@ -58,6 +58,7 @@ docker: aufs
 	rm -rf /var/lib/docker/volumes/*
 	docker stop `docker ps -a -q`
 	docker rmi `docker images -q`
+	chmod 0755 /var/lib/docker
 	chmod 0777 /var/lib/docker/volumes
 	chmod 0777 /var/run/docker.sock
 

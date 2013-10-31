@@ -40,10 +40,12 @@ case "$1" in
     shift 2
     docker run -i -t $IMAGE /exec "$@"
     ;;
+
   docker)
     shift 1
     docker "$@"
     ;;
+    
   url)
     APP="$2"; BRANCH="$3";
     if [[ ! -d "/home/git/$APP" ]]; then

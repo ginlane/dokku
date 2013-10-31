@@ -11,7 +11,8 @@ if [[ $1 == rails:* ]]; then
       exit 1
     fi
     buildpack=$(docker run $IMAGE cat /buildpack_name)
-    if [[ $buildpack == "Ruby/Rails" ]]; then
+    if [[ $buildpack == "Ruby" ]]; then
+      # echo $@
       case "$1" in
         rails:db:create)
           if ! docker run $IMAGE cat /app/Gemfile | grep -q -e "'pg'" -e '"pg"'; then
@@ -36,25 +37,29 @@ if [[ $1 == rails:* ]]; then
           sleep 1
         ;;
         rails:mount:public)
-          MOUNT_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
-          VOLUME="/app/public"
+          HOST_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
+          CONTAINER_DIR="/app/public"
           RENAMED_VOLUME="$MOUNT_DIR/layer:/app/public"
+
           oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
           docker kill $oldid > /dev/null
+
           port=$(< "$HOME/$APP/$BRANCH.PORT")
-          id=$(docker run -d -v $VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
-          echo $id
+
           # test $(docker wait $id) -eq 0
           sleep 4
-          if [[ ! -d $MOUNT_DIR ]]; then
-              # docker kill $id > /dev/null
-              # VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-              # mv $VOLUME_PATH $MOUNT_DIR
-              # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-              sleep 1
+          if [[ ! -d $HOST_DIR ]]; then
+            id=$(docker run -d -v $CONTAINER_DIR -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+            # docker kill $id > /dev/null
+            VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+            mv $VOLUME_PATH $HOST_DIR
+            # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+          else
+            id=$(docker run -d -v $HOST_DIR:$CONTAINER_DIR:rw -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
           fi
-          echo "butts"
+          sleep 1
+          
+          echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
         ;;
       esac
     fi

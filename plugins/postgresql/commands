@@ -51,7 +51,7 @@ case "$1" in
         echo $DB_PASSWORD > "/home/git/.postgresql/pwd_$APP_IMAGE"
         chown git: "/home/git/.postgresql/pwd_$APP_IMAGE"
         # Fork DB image
-        ID=$(docker run -d kloadut/postgresql exit 0)
+        ID=$(docker run -d dokku/postgresql exit 0)
         docker wait $ID > /dev/null
         IMAGE=$(docker commit $ID)
         docker tag $IMAGE $DB_IMAGE
