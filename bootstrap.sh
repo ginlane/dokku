@@ -1,6 +1,5 @@
-#!/usr/bin/env sh
-
-set -e
+#!/usr/bin/env bash
+set -eo pipefail
 export DEBIAN_FRONTEND=noninteractive
 export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/ginlane/dokku.git"}
 
@@ -21,5 +20,4 @@ make install
 
 echo
 echo "Be sure to upload a public key for your user:"
-echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key git\""
- 
+echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"sudo sshcommand acl-add dokku progrium\""

@@ -1,19 +1,19 @@
-#!/bin/bash
-set -e; 
+#!/usr/bin/env bash
+set -eo pipefail
 case "$1" in
   delete)
     if [[ -z $2 ]]; then
         echo "Please specify an app to delete"
         exit 1
     fi
-    APP="$2"; IMAGE="app/$APP";
-    if [[ ! -d "/home/git/$APP" ]]; then
+    APP="$2"; IMAGE="app/$APP"; BRANCH="$3";
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App does not exist"
         exit 1
     fi
 
     pluginhook pre-delete $APP
-    ID=$(< "/home/git/$APP/CONTAINER")
+    ID=$(< "$DOKKU_ROOT/$APP/$BRANCH.CONTAINER")
 
     docker stop $ID > /dev/null
     docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
@@ -23,7 +23,7 @@ case "$1" in
     ;;
 
   logs)
-    CONTAINER=$(</home/git/$2/CONTAINER)
+    CONTAINER=$(<$DOKKU_ROOT/$2/CONTAINER)
     docker logs $CONTAINER | tail -n 100
     ;;
 
@@ -33,7 +33,7 @@ case "$1" in
         exit 1
     fi
     APP="$2"; IMAGE="app/$APP"
-    if [[ ! -d "/home/git/$APP" ]]; then
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App $APP does not exist"
         exit 1
     fi
@@ -48,13 +48,13 @@ case "$1" in
     
   url)
     APP="$2"; BRANCH="$3";
-    if [[ ! -d "/home/git/$APP" ]]; then
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App $APP does not exist"
         exit 1
     fi
 
-    if [[ -f "/home/git/$APP/$BRANCH.URL" ]]; then
-      echo $(< "/home/git/$APP/$BRANCH.URL")
+    if [[ -f "$DOKKU_ROOT/$APP/$BRANCH.URL" ]]; then
+      echo $(< "$DOKKU_ROOT/$APP/$BRANCH.URL")
     fi
     ;;
 

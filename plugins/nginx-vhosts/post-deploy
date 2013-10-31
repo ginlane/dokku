@@ -1,11 +1,13 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eo pipefail
 APP="$1"; IMAGE="$2"; BRANCH="$3"; PORT="$4";
-WILDCARD_SSL="$HOME/ssl"
-SSL="$HOME/$APP/ssl"
+# APP="$1"; PORT="$2"
+WILDCARD_SSL="$DOKKU_ROOT/ssl"
+SSL="$DOKKU_ROOT/$APP/ssl"
 
-if [[ -f "$HOME/VHOST" ]]; then
-  VHOST=$(< "$HOME/VHOST")
+
+if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+  VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
     hostname="${APP/\//-}"
@@ -23,8 +25,10 @@ if [[ -f "$HOME/VHOST" ]]; then
 
   # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
-  cat<<EOF > $HOME/$APP/$BRANCH.nginx.conf
+
+  cat<<EOF > $DOKKU_ROOT/$APP/$BRANCH.nginx.conf
 upstream $APP.$BRANCH { server 127.0.0.1:$PORT; }
+
 server {
   listen      80;
   server_name $hostname;
@@ -56,12 +60,12 @@ server {
   }
 }
 EOF
-
-  echo "https://$hostname" > "$HOME/$APP/$BRANCH.URL"
+  echo "https://$hostname" > "$DOKKU_ROOT/$APP/$BRANCH.URL"
 else
 # default nginx.conf
-  cat<<EOF > $HOME/$APP/$BRANCH.nginx.conf
+  cat<<EOF > $DOKKU_ROOT/$APP/$BRANCH.nginx.conf
 upstream $APP.$BRANCH { server 127.0.0.1:$PORT; }
+
 server {
   listen      80;
   client_max_body_size 200M;
@@ -81,8 +85,9 @@ server {
 }
 EOF
 
-  echo "http://$hostname" > "$HOME/$APP/$BRANCH.URL"
+  echo "http://$hostname" > "$DOKKU_ROOT/$APP/$BRANCH.URL"
   fi
-  sudo /etc/init.d/nginx reload
-  echo "wtf"
+  pluginhook nginx-pre-reload $APP
+  sudo /etc/init.d/nginx reload > /dev/null
+
 fi

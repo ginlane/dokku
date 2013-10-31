@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
 
 # latest stable NGINX 1.4.x with websocket support
 
@@ -11,14 +12,12 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   touch /etc/sudoers.tmp
   cp /etc/sudoers /tmp/sudoers.new
   echo "%dokku ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
-  echo "%git ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
   EDITOR="cp /tmp/sudoers.new" visudo
   rm /tmp/sudoers.new
 fi
 
-
-echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
-echo "include /home/git/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
+echo "include $DOKKU_ROOT/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
+echo "include $DOKKU_ROOT/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
 # set up docker API endpoint
 chmod 0777 /var/run/docker.sock
@@ -121,6 +120,6 @@ echo "127.0.0.1       localhost.com" >> /etc/hosts
 # EOF
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
-[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
+[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > $DOKKU_ROOT/VHOST
 
 sudo /etc/init.d/nginx start
