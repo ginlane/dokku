@@ -24,13 +24,14 @@ copyplugins:
 	- rm -rf /var/lib/dokku/plugins
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+	dokku plugins-install
 
 plugins: pluginhook docker
 	dokku plugins-install
 
 #dependencies: gitreceive sshcommand docker pluginhook copyplugins plugins stack
 
-dependencies: sshcommand pluginhook copyplugins docker stack
+dependencies: docker sshcommand pluginhook copyplugins stack
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
