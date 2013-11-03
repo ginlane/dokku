@@ -2,10 +2,11 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+export BRANCH="$3"
 
 case "$1" in
   receive)
-    APP="$2"; BRANCH="$3"; IMAGE="app/$APP.$BRANCH"; 
+    APP="$2"; IMAGE="app/$APP.$BRANCH"; 
     echo "-----> Building $APP from branch $BRANCH ..."
     cat | dokku build $APP $IMAGE
     echo "-----> Releasing $APP ..."
@@ -20,7 +21,7 @@ case "$1" in
     ;;
 
   build)
-    APP="$2"; IMAGE="$3"; BRANCH="$4"; CACHE_DIR="$DOKKU_ROOT/$APP/cache";
+    APP="$2"; IMAGE="$3"; CACHE_DIR="$DOKKU_ROOT/$APP/cache";
     id=$(cat | docker run -i -a stdin ginlane/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
@@ -38,7 +39,7 @@ case "$1" in
     ;;
 
   release)
-    APP="$2"; IMAGE="$3"; BRANCH="$4";
+    APP="$2"; IMAGE="$3";
     pluginhook pre-release $APP $IMAGE $BRANCH
     if [[ -f "$DOKKU_ROOT/$APP/$BRANCH.ENV" ]]; then
       id=$(cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
@@ -49,7 +50,7 @@ case "$1" in
     ;;
 
   deploy)
-    APP="$2"; IMAGE="$3"; BRANCH="$4";
+    APP="$2"; IMAGE="$3";
     pluginhook pre-deploy $APP $IMAGE $BRANCH
     if [[ ! -f "$DOKKU_ROOT/$APP/$BRANCH.PORT" ]]; then
       # First deploy
