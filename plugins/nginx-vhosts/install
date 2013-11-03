@@ -44,9 +44,9 @@ EOF
 # create local url for pulling in the SSH key when building docker containers later
 rm -rf $DOKKU_ROOT/localhost
 mkdir $DOKKU_ROOT/localhost
-cp /root/.ssh/id_rsa.pub /home/git/localhost
-cp /root/.ssh/id_rsa /home/git/localhost
-chmod 0644 /home/git/localhost/id_rsa
+cp /root/.ssh/id_rsa.pub $DOKKU_ROOT/localhost
+cp /root/.ssh/id_rsa $DOKKU_ROOT/localhost
+chmod 0644 $DOKKU_ROOT/localhost/id_rsa
 
 cat<<EOF > $DOKKU_ROOT/localhost/nginx.conf
 server {
