@@ -6,25 +6,16 @@ PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep
 all:
 	# Type "make install" to install.
 
-install: savesettings dependencies 
+install: dependencies 
 
-dokkuonly: savesettings copyplugins pluginhook
+dokkuonly: copyplugins pluginhook
 	# dokku plugins-install
-
-savesettings:
-	- mv /home/git/.ssh /home/.git.ssh
-	- mv /home/git/ssl /home/.git.ssl
-	rm -rf /home/git
-	mkdir /home/git
-	- mv /home/.git.ssh /home/git/.ssh
-	- mv /home/.git.ssl /home/git/ssl
 
 copyplugins:
 	cp dokku /usr/local/bin/dokku
 	- rm -rf /var/lib/dokku/plugins
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
-	dokku plugins-install
 
 plugins: pluginhook docker
 	dokku plugins-install
