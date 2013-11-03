@@ -2,11 +2,9 @@
 set -eo pipefail
 
 # latest stable NGINX 1.4.x with websocket support
-
 add-apt-repository -y ppa:nginx/stable
 apt-get update
 apt-get install -y nginx dnsutils
-
 
 if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   touch /etc/sudoers.tmp
@@ -21,9 +19,10 @@ echo "include $DOKKU_ROOT/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
 # set up docker API endpoint
 chmod 0777 /var/run/docker.sock
-rm -rf /home/git/docker
-mkdir /home/git/docker
-cat<<EOF > /home/git/docker/nginx.conf
+rm -rf $DOKKU_ROOT/docker
+mkdir $DOKKU_ROOT/docker
+
+cat<<EOF > $DOKKU_ROOT/docker/nginx.conf
 upstream docker { server unix:///var/run/docker.sock; }
 server {
   listen      80;
@@ -43,81 +42,30 @@ server {
 EOF
 
 # create local url for pulling in the SSH key when building docker containers later
-rm -rf /home/git/localhost
-mkdir /home/git/localhost
+rm -rf $DOKKU_ROOT/localhost
+mkdir $DOKKU_ROOT/localhost
 cp /root/.ssh/id_rsa.pub /home/git/localhost
 cp /root/.ssh/id_rsa /home/git/localhost
 chmod 0644 /home/git/localhost/id_rsa
 
-cat<<EOF > /home/git/localhost/nginx.conf
+cat<<EOF > $DOKKU_ROOT/localhost/nginx.conf
 server {
 	listen       80;
 	server_name  localhost.com;
-	root /home/git/localhost;
+	root $DOKKU_ROOT/localhost;
 
 	location /public_key {
-	    try_files $uri /id_rsa.pub $uri;
+	    try_files $uri /id_rsa.pub \$uri;
 	}
 
 	location /private_key {
-	    try_files $uri /id_rsa $uri;
+	    try_files $uri /id_rsa \$uri;
 	}
 }
 EOF
+
 echo "127.0.0.1       localhost.com" >> /etc/hosts
 
-# mkdir /home/git/dokku
-# cat<<EOF > /home/git/dokku/nginx.conf
-# init_by_lua 'cjson = require "cjson"';
-# server {
-# 	listen 80;
-# 	server_name dokku.ginlane.com;
-# 	default_type text/html;
-
-# 	location /help {
-# 		content_by_lua '
-# 		local handle = io.popen("dokku help")
-# 		local result = handle:read("*a")
-# 		handle:close()
-# 		ngx.say(result)
-# 		';
-# 	}
-
-# 	location ~ /docker/(.*) {
-# 		set \$command \$1;
-# 		rds_json on;
-# 		content_by_lua '
-# 			local handle, error = io.popen("/usr/bin/docker " .. ngx.var.command)
-# 			-- local result = handle:read("*a")
-# 			local output = {}
-# 			local line_idx = 0
-# 			local pos_idx = 0
-# 			local item = {}
-# 			local headers = {}
-# 			for line in handle:lines() do
-# 				pos_idx = 0
-# 				local item = {}
-# 				if line_idx == 0 then
-# 					for i in string.gmatch(line, "[^%s]+") do
-# 					headers[pos_idx] = i
-# 					pos_idx = pos_idx + 1
-# 					end
-# 				else
-# 					for i in string.gmatch(line, "[^%s]+") do
-# 					--	item[headers[pos_idx]] = i
-# 					headers[pos_idx] = i
-# 					pos_idx = pos_idx + 1
-# 					end
-# 					table.insert(output, item)
-# 				end
-# 				line_idx = line_idx + 1
-# 			end
-# 			handle:close()
-# 			ngx.say(cjson.encode(headers))
-# 		';
-# 	}
-# }
-# EOF
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 [[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > $DOKKU_ROOT/VHOST
