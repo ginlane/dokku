@@ -6,7 +6,7 @@ if [[ $1 == rails:* ]]; then
     exit 1
   else
     APP="$2"; IMAGE="$3"; APP_IMAGE=`echo $IMAGE | cut -d '/' -f 2`; BRANCH="$4";  # disregard app/ part of $IMAGE
-    if [[ ! -d "/home/git/$APP" ]]; then
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
       echo "App $APP does not exist"
       exit 1
     fi
