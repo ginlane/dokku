@@ -22,7 +22,8 @@ plugins: pluginhook docker
 
 #dependencies: gitreceive sshcommand docker pluginhook copyplugins plugins stack
 
-dependencies: docker sshcommand pluginhook copyplugins stack
+dependencies: docker sshcommand pluginhook copyplugins 
+#stack
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}

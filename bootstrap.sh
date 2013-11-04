@@ -18,6 +18,7 @@ git clone $DOKKU_REPO
 cd dokku && test $DOKKU_BRANCH && git checkout origin/$DOKKU_BRANCH || true
 make install
 dokku plugins-install
+make stack
 
 echo
 echo "Be sure to upload a public key for your user:"
