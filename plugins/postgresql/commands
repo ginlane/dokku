@@ -39,6 +39,7 @@ case "$1" in
         echo
         echo "-----> Reusing postgresql/$APP_IMAGE database at volume $VOLUME"
     else
+        echo "butts2"
         VOLUME="/opt/postgresql"
         # Generate a random password for DB user
         DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
@@ -48,7 +49,7 @@ case "$1" in
             chown -R git: $DOKKU_ROOT/.postgresql
         fi
         echo $DB_PASSWORD > "$DOKKU_ROOT/.postgresql/pwd_$APP_IMAGE"
-        chown git: "$DOKKU_ROOT/.postgresql/pwd_$APP_IMAGE"
+        # chown git: "$DOKKU_ROOT/.postgresql/pwd_$APP_IMAGE"
         # Fork DB image
         ID=$(docker run -d dokku/postgresql exit 0)
         docker wait $ID > /dev/null
