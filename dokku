@@ -2,11 +2,10 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
-export BRANCH="$3"
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE="app/$APP.$BRANCH"; 
+    APP="$2"; IMAGE="app/$APP.$BRANCH"; export BRANCH="$3";
     echo "-----> Building $APP from branch $BRANCH ..."
     cat | dokku build $APP $IMAGE
     echo "-----> Releasing $APP ..."

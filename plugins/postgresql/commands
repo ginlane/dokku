@@ -39,7 +39,6 @@ case "$1" in
         echo
         echo "-----> Reusing postgresql/$APP_IMAGE database at volume $VOLUME"
     else
-        echo "butts2"
         VOLUME="/opt/postgresql"
         # Generate a random password for DB user
         DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
@@ -128,7 +127,7 @@ case "$1" in
           # Write DATABASE_URL to app's ENV file
           URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
           BRANCH=`echo $APP_IMAGE | cut -d '.' -f 2`;
-          cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | grep "$URL" || echo "export $URL" >> "$DOKKU_ROOT/$APP/$BRANCH.ENV"
+          cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | grep "$URL" || echo "export $URL" > "$DOKKU_ROOT/$APP/$BRANCH.ENV"
           echo
           echo "-----> $APP_IMAGE linked to $DB_IMAGE database"
           rm "$DOKKU_ROOT/.postgresql/pwd_$APP_IMAGE"
