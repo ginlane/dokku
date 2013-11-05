@@ -37,29 +37,30 @@ if [[ $1 == rails:* ]]; then
           sleep 1
         ;;
         rails:mount:public)
-          HOST_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
-          CONTAINER_DIR="/app/public"
-          RENAMED_VOLUME="$MOUNT_DIR/layer:/app/public"
+          echo "in empty rails:mount:public"
+          # HOST_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
+          # CONTAINER_DIR="/app/public"
+          # RENAMED_VOLUME="$MOUNT_DIR/layer:/app/public"
 
-          oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
-          docker kill $oldid > /dev/null
+          # oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
+          # docker kill $oldid > /dev/null
 
-          port=$(< "$HOME/$APP/$BRANCH.PORT")
+          # port=$(< "$HOME/$APP/$BRANCH.PORT")
 
-          # test $(docker wait $id) -eq 0
-          sleep 4
-          if [[ ! -d $HOST_DIR ]]; then
-            id=$(docker run -d -v $CONTAINER_DIR -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-            # docker kill $id > /dev/null
-            VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-            mv $VOLUME_PATH $HOST_DIR
-            # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          else
-            id=$(docker run -d -v $HOST_DIR:$CONTAINER_DIR:rw -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          fi
-          sleep 1
-          
-          echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
+          # # test $(docker wait $id) -eq 0
+          # sleep 4
+          # if [[ ! -d $HOST_DIR ]]; then
+          #   id=$(docker run -d -v $CONTAINER_DIR -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+          #   # docker kill $id > /dev/null
+          #   VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+          #   mv $VOLUME_PATH $HOST_DIR
+          #   # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+          # else
+          #   id=$(docker run -d -v $HOST_DIR:$CONTAINER_DIR:rw -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+          # fi
+          # sleep 1
+
+          # echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
         ;;
       esac
     fi

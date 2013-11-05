@@ -14,6 +14,7 @@ if [[ $1 == postgresql:* ]]; then
         else
           APP_IMAGE=`echo $3 | cut -d '/' -f 2`;  # disregard app/ part of $IMAGE
         fi
+        echo $APP_IMAGE
         # Check if app exists with the same name
         if [[ -d "$DOKKU_ROOT/$APP" ]]; then
           APP_EXISTS=true
@@ -126,7 +127,6 @@ case "$1" in
           IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
           # Write DATABASE_URL to app's ENV file
           URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
-          BRANCH=`echo $APP_IMAGE | cut -d '.' -f 2`;
           cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | grep "$URL" || echo "export $URL" > "$DOKKU_ROOT/$APP/$BRANCH.ENV"
           echo
           echo "-----> $APP_IMAGE linked to $DB_IMAGE database"
