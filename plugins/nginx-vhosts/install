@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # latest stable NGINX 1.4.x with websocket support
 add-apt-repository -y ppa:nginx/stable
@@ -68,6 +68,8 @@ echo "127.0.0.1       localhost.com" >> /etc/hosts
 
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
-[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > $DOKKU_ROOT/VHOST
+if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
+  [[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
+fi
 
 sudo /etc/init.d/nginx start

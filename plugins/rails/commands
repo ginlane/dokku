@@ -21,9 +21,6 @@ if [[ $1 == rails:* ]]; then
             echo "No pg gem found in the Gemfile -- please add gem 'pg' and redeploy"
             echo
             exit 1
-            # id=$(docker run $IMAGE /bin/bash -c "echo gem \'pg\' >> /app/Gemfile")
-            # test $(docker wait $id) -eq 0
-            # docker commit $id $IMAGE > /dev/null
           fi
           # always use pgsql on rails apps
           dokku postgresql:create $APP $IMAGE
@@ -34,6 +31,10 @@ if [[ $1 == rails:* ]]; then
         ;;
         rails:db:seed)    
           docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:seed"
+          sleep 1
+        ;;
+        rails:assets:precompile)    
+          docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake assets:precompile"
           sleep 1
         ;;
         rails:mount:public)

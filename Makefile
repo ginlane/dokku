@@ -1,29 +1,31 @@
+DOKKU_VERSION = v0.2.0
+
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/ginlane/buildstep
-PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_c30652f59a.tgz
+PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_79cf6805cf.tgz
+DOKKU_ROOT ?= /home/dokku
+
+.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
 
 all:
 	# Type "make install" to install.
 
-install: dependencies 
+install: dependencies stack copyfiles plugins version
 
-dokkuonly: copyplugins pluginhook
-	# dokku plugins-install
-
-copyplugins:
+copyfiles:
 	cp dokku /usr/local/bin/dokku
-	- rm -rf /var/lib/dokku/plugins
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+
+
+version:
+	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
 
 plugins: pluginhook docker
 	dokku plugins-install
 
-#dependencies: gitreceive sshcommand docker pluginhook copyplugins plugins stack
-
-dependencies: docker sshcommand pluginhook copyplugins 
-#stack
+dependencies: sshcommand pluginhook docker stack
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
@@ -59,7 +61,7 @@ stack:
 
 count:
 	@echo "Core lines:"
-	@cat receiver dokku bootstrap.sh | wc -l
+	@cat dokku bootstrap.sh | wc -l
 	@echo "Plugin lines:"
 	@find plugins -type f | xargs cat | wc -l
 	@echo "Test lines:"

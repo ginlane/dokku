@@ -1,4 +1,4 @@
 #!/bin/bash
 #set -e;
 APP="$1"; IMAGE="$2"; BRANCH="$3";
-dokku rails:mount:public $APP $IMAGE $BRANCH
+dokku rails:assets:precompile $APP $IMAGE $BRANCH

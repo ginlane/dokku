@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
 
-echo $HOSTNAME > $DOKKU_ROOT/HOSTNAME
-
+if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
+    echo $(hostname -f) > $DOKKU_ROOT/HOSTNAME
+fi
 
 # temporary hack for https://github.com/progrium/dokku/issues/82
 # redeploys all apps after a reboot

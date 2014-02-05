@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+set -eo pipefail
+
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+
+[[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   receive)
@@ -24,13 +28,21 @@ case "$1" in
     id=$(cat | docker run -i -a stdin ginlane/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+
+    if [[ -f "$DOKKU_ROOT/$APP/$BRANCH.ENV" ]]; then
+      id=$(cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+      test $(docker wait $id) -eq 0
+      docker commit $id $IMAGE > /dev/null
+    fi
+
     id=$(docker run -d $IMAGE /build/detector)
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP $IMAGE $BRANCH
-    # id=$(docker run -d $IMAGE /build/builder)
+
     id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
@@ -40,37 +52,10 @@ case "$1" in
   release)
     APP="$2"; IMAGE="$3";
     pluginhook pre-release $APP $IMAGE $BRANCH
-    if [[ -f "$DOKKU_ROOT/$APP/$BRANCH.ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
-      test $(docker wait $id) -eq 0
-      docker commit $id $IMAGE > /dev/null
-    fi
     pluginhook post-release $APP $IMAGE $BRANCH
     ;;
 
   deploy)
-
-
-    # APP="$2"; IMAGE="$3";
-    # pluginhook pre-deploy $APP $IMAGE $BRANCH
-    # if [[ ! -f "$DOKKU_ROOT/$APP/$BRANCH.PORT" ]]; then
-    #   # First deploy
-    #   id=$(docker run -d -p 5000 -e PORT=5000 $IMAGE /bin/bash -c "/start web")
-    #   echo $id > "$DOKKU_ROOT/$APP/$BRANCH.CONTAINER"
-    #   port=$(docker port $id 5000 | sed 's/0.0.0.0://')
-    #   echo $port > "$DOKKU_ROOT/$APP/$BRANCH.PORT"
-    #   echo "http://$(< "$HOME/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/$BRANCH.URL"
-    #   pluginhook post-first-deploy $APP $IMAGE $BRANCH
-    # else
-    #   # Regular deploy
-    #   oldid=$(< "$DOKKU_ROOT/$APP/$BRANCH.CONTAINER")
-    #   docker kill $oldid > /dev/null
-    #   port=$(< "$DOKKU_ROOT/$APP/$BRANCH.PORT")
-    #   id=$(docker run -d -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-    #   echo $id > "$DOKKU_ROOT/$APP/$BRANCH.CONTAINER"
-    # fi
-    # pluginhook post-deploy $APP $IMAGE $BRANCH $port
-
 
     APP="$2"; IMAGE="$3"
     pluginhook pre-deploy $APP $IMAGE $BRANCH
@@ -96,7 +81,6 @@ case "$1" in
       pluginhook post-first-deploy $APP $IMAGE $BRANCH
     fi
 
-    #pluginhook post-deploy $APP $port
     pluginhook post-deploy $APP $IMAGE $BRANCH $port
 
     ;;
@@ -134,7 +118,9 @@ EOF
     ;;
 
   *)
-    pluginhook commands "$@"
+    for script in $(ls -d /var/lib/dokku/plugins/*/commands); do
+      $script "$@"
+    done
     ;;
 
 esac
