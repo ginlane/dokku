@@ -44,10 +44,13 @@ docker: aufs
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
 	rm -rf /var/lib/docker/volumes/*
-	docker stop `docker ps -a -q`
-	docker rmi `docker images -q`
+	# remove all stopped containers
+	docker rm $(docker ps -a -q)
+	# removed all untagged images
+	docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 	chmod 0755 /var/lib/docker
 	chmod 0777 /var/lib/docker/volumes
+	chmod 0777 /var/run/docker.sock
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
