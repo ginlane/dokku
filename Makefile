@@ -18,7 +18,6 @@ copyfiles:
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
 
-
 version:
 	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
 
@@ -49,7 +48,6 @@ docker: aufs
 	docker rmi `docker images -q`
 	chmod 0755 /var/lib/docker
 	chmod 0777 /var/lib/docker/volumes
-	chmod 0777 /var/run/docker.sock
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
