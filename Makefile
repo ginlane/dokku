@@ -45,9 +45,9 @@ docker: aufs
 	sleep 2 # give docker a moment i guess
 	rm -rf /var/lib/docker/volumes/*
 	# remove all stopped containers
-	docker rm $(docker ps -a -q)
+	docker rm `docker ps -a -q`
 	# removed all untagged images
-	docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+	docker rmi `docker images | grep "^<none>" | awk "{print $3}"`
 	chmod 0755 /var/lib/docker
 	chmod 0777 /var/lib/docker/volumes
 	chmod 0777 /var/run/docker.sock
