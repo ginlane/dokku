@@ -49,11 +49,11 @@ docker: aufs
 	chmod 0777 /var/lib/docker/volumes || true
 	chmod 0777 /var/run/docker.sock || true
 	# stop all containers
-  docker ps -a -q | awk '{print $1}' | xargs docker stop &> /dev/null
-  # delete all non-running container
-  docker ps -a -q | awk '{print $1}' | xargs docker rm &> /dev/null
-  # delete all images
-  docker images | awk '{print $3}'  | xargs docker rmi &> /dev/null
+	docker ps -a -q | awk '{print $1}' | xargs docker stop &> /dev/null
+	# delete all non-running container
+	docker ps -a -q | awk '{print $1}' | xargs docker rm &> /dev/null
+	# delete all images
+	docker images | awk '{print $3}'  | xargs docker rmi &> /dev/null
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
