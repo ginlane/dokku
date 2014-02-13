@@ -43,17 +43,17 @@ docker: aufs
 	apt-get update
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
-	rm -rf /var/lib/docker/volumes/*
-	# stop all containers
-	docker stop $(docker ps -a -q) || true
-	# remove all stopped containers
-	docker rm $(docker ps -a -q) || true
-	# removed all untagged images 
-	docker rmi $(docker images | grep "^<none>" | awk "{print $3}") || true
 	# housekeeping
+	rm -rf /var/lib/docker/volumes/*
 	chmod 0755 /var/lib/docker || true
 	chmod 0777 /var/lib/docker/volumes || true
 	chmod 0777 /var/run/docker.sock || true
+	# stop all containers
+  docker ps -a -q | awk '{print $1}' | xargs docker stop &> /dev/null &
+  # delete all non-running container
+  docker ps -a -q | awk '{print $1}' | xargs docker rm &> /dev/null &
+  # delete all images
+  docker images | awk '{print $3}'  | xargs docker rmi &> /dev/null &
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
