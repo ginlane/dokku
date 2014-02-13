@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
 
 # latest stable NGINX 1.4.x with websocket support
 add-apt-repository -y ppa:nginx/stable
@@ -15,9 +16,6 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
 fi
 
 echo "include $DOKKU_ROOT/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
-
-export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
-echo "include $DOKKU_ROOT/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
 # set up docker API endpoint
 chmod 0777 /var/run/docker.sock
