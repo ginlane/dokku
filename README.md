@@ -13,8 +13,11 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing
 
+EVERYTHING (including GLM-specific dependencies and everything below)
 
-Everything (including docker, gitreceive, sshcommand, pluginhook, & buildstep):
+    $ wget -qO- https://raw.github.com/ginlane/dokku/master/full-install.sh | sudo bash
+
+Non-specific to GLM (including docker, gitreceive, sshcommand, pluginhook, & buildstep):
 
     $ wget -qO- https://raw.github.com/ginlane/dokku/master/bootstrap.sh | sudo bash
 
