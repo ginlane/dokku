@@ -5,7 +5,7 @@ if [[ $1 == rails:* ]]; then
     echo "You must specify an app name"
     exit 1
   else
-    APP="$2"; IMAGE="$3"; APP_IMAGE=`echo $IMAGE | cut -d '/' -f 2`; BRANCH="$4";  # disregard app/ part of $IMAGE
+    APP="$2"; IMAGE="app/$APP"; 
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
       echo "App $APP does not exist"
       exit 1
@@ -23,7 +23,7 @@ if [[ $1 == rails:* ]]; then
             exit 1
           fi
           # always use pgsql on rails apps
-          dokku postgresql:create $APP $IMAGE
+          dokku postgresql:create $APP
         ;;
         rails:db:migrate)
           docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
@@ -39,29 +39,6 @@ if [[ $1 == rails:* ]]; then
         ;;
         rails:mount:public)
           echo "in empty rails:mount:public"
-          # HOST_DIR="/var/lib/docker/volumes/public-$APP_IMAGE"
-          # CONTAINER_DIR="/app/public"
-          # RENAMED_VOLUME="$MOUNT_DIR/layer:/app/public"
-
-          # oldid=$(< "$HOME/$APP/$BRANCH.CONTAINER")
-          # docker kill $oldid > /dev/null
-
-          # port=$(< "$HOME/$APP/$BRANCH.PORT")
-
-          # # test $(docker wait $id) -eq 0
-          # sleep 4
-          # if [[ ! -d $HOST_DIR ]]; then
-          #   id=$(docker run -d -v $CONTAINER_DIR -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          #   # docker kill $id > /dev/null
-          #   VOLUME_PATH=$(docker inspect $id | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
-          #   mv $VOLUME_PATH $HOST_DIR
-          #   # id=$(docker run -d -v $RENAMED_VOLUME -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          # else
-          #   id=$(docker run -d -v $HOST_DIR:$CONTAINER_DIR:rw -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-          # fi
-          # sleep 1
-
-          # echo $id > "$HOME/$APP/$BRANCH.CONTAINER"
         ;;
       esac
     fi

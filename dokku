@@ -34,13 +34,6 @@ case "$1" in
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
 
-    # inject env into container before any building is done
-    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
-      test $(docker wait $id) -eq 0
-      docker commit $id $IMAGE > /dev/null
-    fi
-
     # run the separate detection routine as per ginlane/buildstep
     id=$(docker run -d $IMAGE /build/detector)
     docker attach $id
@@ -50,6 +43,13 @@ case "$1" in
     # now run the build step proper
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP
+
+    # inject env into container before any building is done
+    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+      test $(docker wait $id) -eq 0
+      docker commit $id $IMAGE > /dev/null
+    fi
 
     id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
@@ -98,6 +98,15 @@ case "$1" in
   cleanup)
     # delete all non-running container
     docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm &> /dev/null &
+    # delete unused images
+    docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
+    ;;
+
+  force-cleanup)
+    # stop all containers
+    docker ps -a -q | awk '{print $1}' | xargs docker stop &> /dev/null
+    # delete all non-running container
+    docker ps -a -q | awk '{print $1}' | xargs docker rm &> /dev/null
     # delete unused images
     docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
     ;;
