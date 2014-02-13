@@ -1,5 +1,4 @@
 .vagrant
 .DS_Store
 stack.tgz
-full-install.sh
-deps.sh
+install.sh
