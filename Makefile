@@ -63,11 +63,11 @@ stack:
 	# you need the nginx-vhosts plugin installed
 	bash /var/lib/dokku/plugins/nginx-vhosts/install
 	# docker build -t ginlane/buildstep github.com/ginlane/buildstep
-ifdef BUILD_STACK
+# ifdef BUILD_STACK
 	@docker images | grep ginlane/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t ginlane/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
-else
-	@docker images | grep ginlane/buildstep || curl ${PREBUILT_STACK_URL} | gunzip -cd | docker import - ginlane/buildstep
-endif
+# else
+# 	@docker images | grep ginlane/buildstep || curl ${PREBUILT_STACK_URL} | gunzip -cd | docker import - ginlane/buildstep
+# endif
 
 count:
 	@echo "Core lines:"
