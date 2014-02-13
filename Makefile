@@ -3,6 +3,7 @@ DOKKU_VERSION = v0.2.1
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/5f9afe79698332d24a69873721619f5af4670d09/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/ginlane/buildstep
+PREBUILT_STACK_URL ?= http://dokku.ginlane.com/buildstep.tar.tgz
 DOKKU_ROOT ?= /home/dokku
 
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
@@ -62,7 +63,11 @@ stack:
 	# you need the nginx-vhosts plugin installed
 	bash /var/lib/dokku/plugins/nginx-vhosts/install
 	# docker build -t ginlane/buildstep github.com/ginlane/buildstep
-	docker build -t ginlane/buildstep ${STACK_URL}
+ifdef BUILD_STACK
+	@docker images | grep ginlane/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t ginlane/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
+else
+	@docker images | grep ginlane/buildstep || curl ${PREBUILT_STACK_URL} | gunzip -cd | docker import - ginlane/buildstep
+endif
 
 count:
 	@echo "Core lines:"
