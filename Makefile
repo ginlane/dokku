@@ -44,6 +44,8 @@ docker: aufs
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
 	rm -rf /var/lib/docker/volumes/*
+	# stop all containers
+	docker stop $(docker ps -a -q) || true
 	# remove all stopped containers
 	docker rm $(docker ps -a -q) || true
 	# removed all untagged images 

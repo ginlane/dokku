@@ -13,6 +13,7 @@ fi
 apt-get update
 apt-get install -y git make curl software-properties-common
 
+cd ~ && rm -rf dokku 
 cd ~ && test -d dokku || git clone $DOKKU_REPO
 cd dokku
 git fetch origin
@@ -23,9 +24,7 @@ elif [[ -n $DOKKU_TAG ]]; then
   git checkout $DOKKU_TAG
 fi
 
-
 make install
-
 
 echo
 echo "Be sure to upload a public key for your user:"
