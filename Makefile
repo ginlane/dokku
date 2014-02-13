@@ -3,7 +3,6 @@ DOKKU_VERSION = v0.2.1
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/5f9afe79698332d24a69873721619f5af4670d09/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/ginlane/buildstep
-PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_79cf6805cf.tgz
 DOKKU_ROOT ?= /home/dokku
 
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
@@ -15,6 +14,7 @@ install: dependencies stack copyfiles plugins version
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
+	rm -rf /var/lib/dokku/plugins
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
 
@@ -48,17 +48,19 @@ docker: aufs
 	docker rm $(docker ps -a -q) || true
 	# removed all untagged images 
 	docker rmi $(docker images | grep "^<none>" | awk "{print $3}") || true
-	chmod 0755 /var/lib/docker
-	chmod 0777 /var/lib/docker/volumes
-	chmod 0777 /var/run/docker.sock
+	# housekeeping
+	chmod 0755 /var/lib/docker || true
+	chmod 0777 /var/lib/docker/volumes || true
+	chmod 0777 /var/run/docker.sock || true
 
 aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
 
 stack:
-	# @docker images | grep ginlane/buildstep ||  was prefixing the below command
-	docker build -t ginlane/buildstep ${STACK_URL}
+	# you need the nginx-vhosts plugin installed
+	bash /var/lib/dokku/plugins/nginx-vhosts/install
 	# docker build -t ginlane/buildstep github.com/ginlane/buildstep
+	docker build -t ginlane/buildstep ${STACK_URL}
 
 count:
 	@echo "Core lines:"

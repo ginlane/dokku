@@ -24,10 +24,6 @@ elif [[ -n $DOKKU_TAG ]]; then
 fi
 
 
-# make install
-# dokku plugins-install
-# make stack
-
 make install
 
 

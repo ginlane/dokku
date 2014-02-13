@@ -1,69 +1,78 @@
 #!/usr/bin/env bash
 set -eo pipefail
-
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
+
 [[ $DOKKU_TRACE ]] && set -x
+
+if [[ $(id -un) != "dokku" && $1 != "plugins-install" ]]; then
+  sudo -u dokku -H $0 "$@"
+  exit
+fi
 
 case "$1" in
   receive)
-    APP="$2"; export BRANCH="$3"; IMAGE="app/$APP.$BRANCH"; 
-    echo "-----> Building $APP from branch $BRANCH ..."
-    cat | dokku build $APP $IMAGE
-    echo "-----> Releasing $APP ..."
-    dokku release $APP $IMAGE $BRANCH
-    echo "-----> Deploying $APP ..."
-    dokku deploy $APP $IMAGE $BRANCH
+    APP="$2"; IMAGE="app/$APP"
     echo "-----> Cleaning up ..."
     dokku cleanup
+    echo "-----> Building $APP ..."
+    cat | dokku build $APP
+    echo "-----> Releasing $APP ..."
+    dokku release $APP
+    echo "-----> Deploying $APP ..."
+    dokku deploy $APP
     echo "=====> Application deployed:"
     echo "       $(dokku url $APP $BRANCH)"
     echo
     ;;
 
   build)
-    APP="$2"; IMAGE="$3"; CACHE_DIR="$DOKKU_ROOT/$APP/cache";
+    APP="$2"; IMAGE="app/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache";
     id=$(cat | docker run -i -a stdin ginlane/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
 
-    if [[ -f "$DOKKU_ROOT/$APP/$BRANCH.ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/$BRANCH.ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+    # inject env into container before any building is done
+    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
 
+    # run the separate detection routine as per ginlane/buildstep
     id=$(docker run -d $IMAGE /build/detector)
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
 
+    # now run the build step proper
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
-    pluginhook pre-build $APP $IMAGE $BRANCH
+    pluginhook pre-build $APP
 
     id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+
+    pluginhook post-build $APP
     ;;
 
   release)
-    APP="$2"; IMAGE="$3";
-    pluginhook pre-release $APP $IMAGE $BRANCH
-    pluginhook post-release $APP $IMAGE $BRANCH
+    APP="$2"; IMAGE="app/$APP";
+    pluginhook pre-release $APP
+    pluginhook post-release $APP
     ;;
 
   deploy)
-
-    APP="$2"; IMAGE="$3"
+    APP="$2"; IMAGE="app/$APP";
     pluginhook pre-deploy $APP $IMAGE $BRANCH
 
     FIRSTDEPLOY=0
     # kill the app when running
-    if [[ -f "$DOKKU_ROOT/$APP/$BRANCH.PORT" ]]; then
-      oldid=$(< "$DOKKU_ROOT/$APP/$BRANCH.CONTAINER")
+    if [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+      oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
       docker kill $oldid > /dev/null
     else
       # run post-first-deploy to begin with
@@ -71,18 +80,19 @@ case "$1" in
     fi
 
     # start the app
-    id=$(docker run -d -p 5000 -e PORT=5000 $IMAGE /bin/bash -c "/start web")
-    echo $id > "$DOKKU_ROOT/$APP/$BRANCH.CONTAINER"
+    DOCKER_ARGS=$(: | pluginhook docker-args $APP)
+    id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
+    echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     port=$(docker port $id 5000 | sed 's/0.0.0.0://')
-    echo $port > "$DOKKU_ROOT/$APP/$BRANCH.PORT"
-    echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/$BRANCH.URL"
+    echo $port > "$DOKKU_ROOT/$APP/PORT"
+    echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
+    # run the db:seed stuff for example -- only happens after the first deploy
     if [[ $FIRSTDEPLOY == 1 ]]; then
       pluginhook post-first-deploy $APP $IMAGE $BRANCH
     fi
 
-    pluginhook post-deploy $APP $IMAGE $BRANCH $port
-
+    pluginhook post-deploy $APP $port
     ;;
 
   cleanup)
@@ -104,8 +114,7 @@ case "$1" in
   deploy:all)
     for app in $(ls -d $DOKKU_ROOT/*/); do
       APP=$(basename $app);
-      IMAGE="app/$APP"
-      dokku deploy $APP $IMAGE
+      dokku deploy $APP
     done
     ;;
 

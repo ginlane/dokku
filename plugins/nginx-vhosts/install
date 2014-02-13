@@ -15,6 +15,8 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
 fi
 
 echo "include $DOKKU_ROOT/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
+
+export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
 echo "include $DOKKU_ROOT/*/*.nginx.conf;" >> /etc/nginx/conf.d/dokku.conf
 
 # set up docker API endpoint

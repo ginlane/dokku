@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-# $5 is the branch name i.e. 'master' or 'staging'
-set -e; set -o pipefail; cat | dokku receive $1 $5 | sed -u "s/^/"$'\e[1G'"/"

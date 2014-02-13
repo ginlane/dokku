@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP="$1"; IMAGE="$2";
+APP="$1";
 if [[ -f "$DOKKU_ROOT/.postgresql/pwd_$APP" ]]; then
-    dokku postgresql:link $APP $IMAGE
+    dokku postgresql:link $APP
 fi
