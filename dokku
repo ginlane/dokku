@@ -44,13 +44,6 @@ case "$1" in
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP
 
-    # inject env into container before any building is done
-    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
-      test $(docker wait $id) -eq 0
-      docker commit $id $IMAGE > /dev/null
-    fi
-
     id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
@@ -62,6 +55,12 @@ case "$1" in
   release)
     APP="$2"; IMAGE="app/$APP";
     pluginhook pre-release $APP
+    # inject env into container before any building is done
+    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+      test $(docker wait $id) -eq 0
+      docker commit $id $IMAGE > /dev/null
+    fi
     pluginhook post-release $APP
     ;;
 
