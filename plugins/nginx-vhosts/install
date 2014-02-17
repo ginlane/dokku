@@ -48,6 +48,14 @@ cp /root/.ssh/id_rsa.pub $DOKKU_ROOT/localhost
 cp /root/.ssh/id_rsa $DOKKU_ROOT/localhost
 chmod 0644 $DOKKU_ROOT/localhost/id_rsa
 
+cat<<EOF > $DOKKU_ROOT/ginlane/nginx.conf
+server {
+  listen 80;
+  server_name ginlane.com;
+  return 301 $scheme://ginlanemedia.com$request_uri;
+}
+EOF
+
 cat<<EOF > $DOKKU_ROOT/localhost/nginx.conf
 server {
 	listen       80;

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+APP="$1";
+if [[ -f "$DOKKU_ROOT/.postgresql/pwd_$APP" ]]; then
+    dokku postgresql:delete $APP
+fi

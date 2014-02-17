@@ -24,7 +24,7 @@ case "$1" in
     echo "-----> Deploying $APP ..."
     dokku deploy $APP
     echo "=====> Application deployed:"
-    echo "       $(dokku url $APP $BRANCH)"
+    echo "       $(dokku url $APP)"
     echo
     ;;
 
@@ -40,7 +40,7 @@ case "$1" in
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
 
-    # now run the build step proper
+    # now run the build step proper -- create the db for example
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP
 
@@ -66,7 +66,7 @@ case "$1" in
 
   deploy)
     APP="$2"; IMAGE="app/$APP";
-    pluginhook pre-deploy $APP $IMAGE $BRANCH
+    pluginhook pre-deploy $APP $IMAGE
 
     FIRSTDEPLOY=0
     # kill the app when running
@@ -74,7 +74,7 @@ case "$1" in
       oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
       docker kill $oldid > /dev/null
     else
-      # run post-first-deploy to begin with
+      # run post-first-deploy to begin withx
       FIRSTDEPLOY=1
     fi
 
@@ -88,7 +88,7 @@ case "$1" in
 
     # run the db:seed stuff for example -- only happens after the first deploy
     if [[ $FIRSTDEPLOY == 1 ]]; then
-      pluginhook post-first-deploy $APP $IMAGE $BRANCH
+      pluginhook post-first-deploy $APP $IMAGE
     fi
 
     pluginhook post-deploy $APP $port
