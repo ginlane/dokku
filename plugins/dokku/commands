@@ -19,6 +19,10 @@ case "$1" in
     docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
     docker rm $ID  > /dev/null
 
+    if [[ -d "$DOKKU_ROOT/$APP" ]]; then
+        rm -rf "$DOKKU_ROOT/$APP"
+    fi
+      
     pluginhook post-delete $APP
     ;;
 

@@ -103,6 +103,7 @@ case "$1" in
     fi
     echo
     echo "-----> PostgreSQL container deleted: $DB_IMAGE"
+    exit 0
     ;;
 
   postgresql:info)
