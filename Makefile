@@ -15,7 +15,6 @@ install: dependencies stack copyfiles plugins version
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
-	rm -rf /var/lib/dokku/plugins
 
 version:
 	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
