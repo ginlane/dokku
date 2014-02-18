@@ -33,12 +33,9 @@ if [[ $1 == rails:* ]]; then
         ;;
         rails:assets:precompile)
           id=$(docker run -d $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake assets:precompile")
-          echo $id
-          echo "butts"
           docker attach $id
           test $(docker wait $id) -eq 0
           docker commit $id $IMAGE > /dev/null
-          echo $id
           sleep 1
         ;;
         rails:mount:public)
