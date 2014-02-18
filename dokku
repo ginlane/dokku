@@ -82,8 +82,8 @@ case "$1" in
     if [[ $FIRSTDEPLOY == 1 ]]; then
       pluginhook pre-first-start $APP $IMAGE
     fi
-    
-    pluginhook pre-start
+
+    pluginhook pre-start $APP
 
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
@@ -92,8 +92,6 @@ case "$1" in
     port=$(docker port $id 5000 | sed 's/0.0.0.0://')
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
-
-
 
     pluginhook post-deploy $APP $port
     ;;
