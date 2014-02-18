@@ -45,27 +45,29 @@ case "$1" in
         echo $DB_PASSWORD > "$DOKKU_ROOT/.postgresql/pwd_$APP"
         chown dokku: "$DOKKU_ROOT/.postgresql/pwd_$APP"
         chmod 700 "$DOKKU_ROOT/.postgresql/pwd_$APP"
-    fi
-    # Fork DB image
-    ID=$(docker run -d dokku/postgresql exit 0)
-    docker wait $ID > /dev/null
-    IMAGE=$(docker commit $ID)
-    docker tag $IMAGE $DB_IMAGE
-    # Launch container
-    ID=$(docker run -v $VOLUME -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD)
-    sleep 4
-    # Rename persistent volume
-    if [[ ! -f "$DOKKU_ROOT/.postgresql/volume_$APP" ]]; then
-        VOLUME_PATH=$(docker inspect $ID | grep /var/lib/docker/vfs/dir/ | awk '{print $2}' | sed -e's/"//g')
-        if [[ -z $VOLUME_PATH ]]; then
-            echo "Your docker version is too old, please update it"
-            exit 1
+
+        # Fork DB image
+        ID=$(docker run -d dokku/postgresql exit 0)
+        docker wait $ID > /dev/null
+        IMAGE=$(docker commit $ID)
+        docker tag $IMAGE $DB_IMAGE
+        # Launch container
+        ID=$(docker run -v $VOLUME -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD)
+        sleep 4
+        # Rename persistent volume
+        if [[ ! -f "$DOKKU_ROOT/.postgresql/volume_$APP" ]]; then
+            VOLUME_PATH=$(docker inspect $ID | grep /var/lib/docker/vfs/dir/ | awk '{print $2}' | sed -e's/"//g')
+            if [[ -z $VOLUME_PATH ]]; then
+                echo "Your docker version is too old, please update it"
+                exit 1
+            fi
+            echo $VOLUME_PATH > "$DOKKU_ROOT/.postgresql/volume_$APP"
         fi
-        echo $VOLUME_PATH > "$DOKKU_ROOT/.postgresql/volume_$APP"
+        # Write port for further usage
+        PORT=$(docker port $ID 5432 | sed 's/0.0.0.0://')
+        echo $PORT > "$DOKKU_ROOT/.postgresql/port_$APP"
     fi
-    # Write port for further usage
-    PORT=$(docker port $ID 5432 | sed 's/0.0.0.0://')
-    echo $PORT > "$DOKKU_ROOT/.postgresql/port_$APP"
+
     # Link to a potential existing app
     dokku postgresql:link $APP $APP
     echo
