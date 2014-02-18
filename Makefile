@@ -16,8 +16,6 @@ install: dependencies stack copyfiles plugins version
 copyfiles:
 	cp dokku /usr/local/bin/dokku
 	rm -rf /var/lib/dokku/plugins
-	mkdir -p /var/lib/dokku/plugins
-	cp -r plugins/* /var/lib/dokku/plugins
 
 version:
 	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
@@ -39,7 +37,7 @@ pluginhook:
 docker: aufs
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
-	curl https://get.docker.io/gpg | apt-key add -
+	# curl https://get.docker.io/gpg | apt-key add -
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 	apt-get install -y lxc-docker 
@@ -61,6 +59,8 @@ aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
 
 stack:
+	mkdir -p /var/lib/dokku/plugins
+	cp -r plugins/* /var/lib/dokku/plugins
 	# you need the nginx-vhosts plugin installed
 	bash /var/lib/dokku/plugins/nginx-vhosts/install
 # ifdef BUILD_STACK
