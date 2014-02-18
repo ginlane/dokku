@@ -45,6 +45,7 @@ docker: aufs
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
 	# housekeeping
+	rm -rf /var/lib/docker/vfs/*
 	rm -rf /var/lib/docker/volumes/*
 	chmod 0755 /var/lib/docker || true
 	chmod 0777 /var/lib/docker/volumes || true
