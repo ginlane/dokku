@@ -25,7 +25,8 @@ case "$1" in
     dokku deploy $APP
     echo "=====> Application deployed:"
     echo "       $(dokku url $APP)"
-    echo
+    echo "-----> Cleaning up ..."
+    dokku cleanup
     ;;
 
   build)
@@ -57,7 +58,7 @@ case "$1" in
     pluginhook pre-release $APP
     # inject env into container before any building is done
     if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat >> /app/.profile.d/app-env.sh")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
@@ -83,7 +84,7 @@ case "$1" in
       pluginhook pre-first-start $APP $IMAGE
     fi
 
-    pluginhook pre-start $APP
+    pluginhook pre-start $APP $IMAGE
 
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
@@ -98,7 +99,9 @@ case "$1" in
 
   cleanup)
     # delete all non-running container
+    sleep 2
     docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm &> /dev/null &
+    sleep 4
     # delete unused images
     docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
     ;;

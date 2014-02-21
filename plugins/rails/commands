@@ -24,15 +24,15 @@ if [[ $1 == rails:* ]]; then
           dokku postgresql:create $APP
         ;;
         rails:db:migrate)
-          docker run -t $IMAGE /bin/bash -c "export HOME=/app; export CURL_TIMEOUT=120; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
+          docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:migrate"
           sleep 1
         ;;
         rails:db:seed)    
-          docker run -t $IMAGE /bin/bash -c "export HOME=/app; export CURL_TIMEOUT=120; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:seed"
+          docker run -t $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake db:seed"
           sleep 1
         ;;
         rails:assets:precompile)
-          id=$(docker run -d $IMAGE /bin/bash -c "export HOME=/app; export CURL_TIMEOUT=120; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake assets:precompile")
+          id=$(docker run -d $IMAGE /bin/bash -c "export HOME=/app; for file in /app/.profile.d/*; do source \$file; done; hash -r; cd /app; RAILS_ENV=production rake assets:clean && rake assets:precompile")
           docker attach $id
           test $(docker wait $id) -eq 0
           docker commit $id $IMAGE > /dev/null
@@ -51,7 +51,7 @@ if [[ $1 == help ]]; then
     rails:db:create <app> <image>     Create rails DB
     rails:db:migrate <app> <image>     Migrate rails DB
     rails:db:seed <app> <image>     Seed rails DB
-    rails:db:precompile <app> <image>     Precompile assets
+    rails:assets:precompile <app> <image>     Precompile assets
     rails:mount:public <app> <image>     Mount rails public directory to host OS
 EOF
 fi
